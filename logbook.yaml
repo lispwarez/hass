@@ -1,0 +1,3 @@
+exclude:
+  entities:
+  - sensor.ups_transfer_count

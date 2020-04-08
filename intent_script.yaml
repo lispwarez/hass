@@ -1,0 +1,10 @@
+LetMeInGarage:
+  speech:
+    text: "Sure, If I must"
+#  action:
+#    service: script.garage_open_after_disarm_alarm
+
+send_image_on_request:
+  speech:
+    text: "The picture is on its way to you"
+#  action:  

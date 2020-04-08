@@ -1,0 +1,728 @@
+custom_header:
+  chevrons: false
+  compact_mode: true
+name: Where I lay my head is home
+resources:
+  - type: js
+    url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
+  - type: module
+    url: /community_plugin/lovelace-fold-entity-row/fold-entity-row.js
+  - type: module
+    url: /community_plugin/mini-media-player/mini-media-player-bundle.js
+  - type: module
+    url: /community_plugin/lovelace-auto-entities/auto-entities.js
+  - type: module
+    url: /community_plugin/lovelace-card-mod/card-mod.js
+  - type: js
+    url: /local/list-card.js?v=0
+  - type: module
+    url: /community_plugin/custom-header/custom-header.js
+views:
+  - cards:
+      - cards:
+          - entities:
+              - entity: binary_sensor.alarm_status
+                name: Alarm
+              - entity: binary_sensor.doors_open_when_armed
+                name: Door Alert
+              - entity: binary_sensor.power_warning
+                name: Power Alert
+              - entity: sensor.house_temperature
+                name: Temp
+              - entity: input_boolean.bedtime_mode
+                name: Bedtime
+                style: |
+                  :host {
+                    --paper-item-icon-color: {% if is_state('input_boolean.bedtime_mode', 'on') %} var(--paper-item-icon-active-color) {% endif %}
+                  }
+                tap_action:
+                  action: toggle
+            show_name: true
+            show_state: true
+            type: glance
+          - cards:
+              - entity: sensor.axpert_pvw
+                max: 1700
+                type: gauge
+              - entity: sensor.axpert_outw
+                max: 5000
+                type: gauge
+            type: horizontal-stack
+          - cards:
+              - entity: sensor.axpert_charge_w
+                max: 1000
+                name: Battery Charge
+                type: gauge
+              - entity: sensor.axpert_discharge_w
+                max: 1000
+                name: Battery Discharge
+                type: gauge
+            type: horizontal-stack
+          - card:
+              show_state: false
+              type: glance
+            entities:
+              - entity: light.front_door
+                tap_action:
+                  action: toggle
+              - entity: light.entrance
+                tap_action:
+                  action: toggle
+              - entity: light.garage
+                tap_action:
+                  action: toggle
+              - entity: light.lounge
+                tap_action:
+                  action: toggle
+              - entity: light.dining_room
+                name: Diningroom
+                tap_action:
+                  action: toggle
+              - entity: light.kitchen
+                tap_action:
+                  action: toggle
+              - entity: light.kitchen_downlights
+                name: Downlights
+                tap_action:
+                  action: toggle
+              - entity: light.scullary
+                tap_action:
+                  action: toggle
+              - entity: light.passage
+                tap_action:
+                  action: toggle
+              - entity: light.study
+                tap_action:
+                  action: toggle
+              - entity: light.bedroom
+                tap_action:
+                  action: toggle
+              - entity: light.bed_lamp
+                tap_action:
+                  action: toggle
+              - entity: light.en_suite
+                tap_action:
+                  action: toggle
+              - entity: light.spare_room
+                tap_action:
+                  action: toggle
+              - entity: light.bathroom
+                tap_action:
+                  action: toggle
+              - entity: light.garden
+                tap_action:
+                  action: toggle
+              - entity: light.patio
+                tap_action:
+                  action: toggle
+              - entity: light.pool
+                tap_action:
+                  action: toggle
+              - entity: light.driveway
+                tap_action:
+                  action: toggle
+              - entity: light.side_ally
+                tap_action:
+                  action: toggle
+              - entity: light.back_door
+                tap_action:
+                  action: toggle
+              - entity: switch.pool_pump
+                tap_action:
+                  action: toggle
+              - entity: switch.geyser
+                tap_action:
+                  action: toggle
+            show_empty: false
+            state_filter:
+              - 'on'
+            type: entity-filter
+        type: vertical-stack
+    icon: 'mdi:home-assistant'
+    id: home
+    panel: false
+    title: Home
+  - badges: []
+    cards:
+      - cards:
+          - entities:
+              - entity: binary_sensor.alarm_status
+                name: Alarm
+              - entity: binary_sensor.someone_home
+                name: Home
+              - entity: binary_sensor.zones_idle
+                name: Zones
+              - entity: binary_sensor.door_contact_garage_double
+                name: Double
+              - entity: binary_sensor.door_contact_garage_single
+                name: Single
+            show_name: true
+            show_state: false
+            type: glance
+          - type: divider
+          - cards:
+              - entity: script.paradox_status_arm
+                hold_action:
+                  action: more-info
+                  entity: binary_sensor.alarm_status
+                image: /local/alarm_arm.png
+                tap_action:
+                  action: toggle
+                type: picture
+              - entity: script.paradox_status_stay
+                hold_action:
+                  action: more-info
+                  entity: binary_sensor.alarm_status
+                image: /local/alarm_stay.png
+                tap_action:
+                  action: toggle
+                type: picture
+              - entity: script.paradox_status_disarm
+                hold_action:
+                  action: more-info
+                  entity: binary_sensor.alarm_status
+                image: /local/alarm_off.png
+                tap_action:
+                  action: toggle
+                type: picture
+            type: horizontal-stack
+          - type: divider
+          - entities:
+              - entity: sensor.alarm_arm_mode
+                icon: 'mdi:shield-home'
+                name: Alarm Status
+            type: entities
+        title: Security
+        type: 'custom:vertical-stack-in-card'
+      - cards:
+          - cards:
+              - entity: script.garage_close_and_arm_alarm
+                icon: 'mdi:garage'
+                icon_height: 40px
+                name: Auto Close
+                tap_action:
+                  action: toggle
+                type: entity-button
+              - entity: input_boolean.garage_auto_opener
+                icon: 'mdi:garage-open'
+                icon_height: 40px
+                name: Auto Open
+                style: |
+                  :host {
+                    --paper-item-icon-color: {% if is_state('input_boolean.garage_auto_opener', 'on') %} var(--paper-item-icon-active-color) {% endif %}
+                  }
+                tap_action:
+                  action: toggle
+                type: entity-button
+              - entity: script.garage_open_after_disarm_alarm
+                icon: 'mdi:garage-open'
+                icon_height: 40px
+                name: Trigger
+                tap_action:
+                  action: toggle
+                type: entity-button
+              - entity: script.garage_door_opener
+                icon: 'mdi:unfold-more-horizontal'
+                icon_height: 40px
+                name: Toggle
+                tap_action:
+                  action: toggle
+                type: entity-button
+              - entity: light.garage
+                icon_height: 40px
+                name: Light
+                tap_action:
+                  action: toggle
+                type: entity-button
+            type: horizontal-stack
+          - style:
+              padding-bottom: 8px
+            type: divider
+        title: Garage Stuff
+        type: 'custom:vertical-stack-in-card'
+      - entities:
+          - entity: binary_sensor.zones_idle
+            name: Zones Idle
+            secondary_info: last-changed
+          - entity: binary_sensor.door_contact_garage_double
+            secondary_info: last-changed
+          - entity: binary_sensor.door_contact_garage_single
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_15
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_16
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_17
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_04
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_14
+            secondary_info: last-changed
+          - entity: binary_sensor.paradox_zone_01
+            secondary_info: last-changed
+          - entity: binary_sensor.driveway_motion
+            secondary_info: last-changed
+          - entity: binary_sensor.driveway_line_crossing
+            secondary_info: last-changed
+          - entity: binary_sensor.garden_motion
+            secondary_info: last-changed
+          - entity: binary_sensor.garden_line_crossing
+            secondary_info: last-changed
+        show_header_toggle: false
+        title: Motion / Door Sensors
+        type: entities
+    icon: 'mdi:shield-home'
+    id: sec
+    title: Security & Access
+  - cards:
+      - aspect_ratio: 0%
+        camera_image: camera.inside
+        entities:
+          - light.kitchen
+          - light.kitchen_downlights
+          - light.scullary
+          - light.dining_room
+        type: picture-glance
+      - aspect_ratio: 0%
+        camera_image: camera.garden
+        entities:
+          - binary_sensor.paradox_zone_16
+          - binary_sensor.garden_line_crossing
+          - light.patio
+          - light.garden
+        type: picture-glance
+      - camera_image: camera.driveway
+        entities:
+          - binary_sensor.driveway_motion
+          - binary_sensor.driveway_line_crossing
+        type: picture-glance
+      - camera_image: camera.garage
+        entities:
+          - light.garage
+        type: picture-glance
+    icon: 'mdi:cctv'
+    id: cams
+    title: Cameras
+  - cards:
+      - entities:
+          - entity: light.lounge
+            tap_action:
+              action: toggle
+          - entity: light.kitchen
+            tap_action:
+              action: toggle
+          - entity: light.kitchen_downlights
+            name: Downlights
+            tap_action:
+              action: toggle
+          - entity: light.scullary
+            tap_action:
+              action: toggle
+          - entity: light.dining_room
+            tap_action:
+              action: toggle
+        show_name: true
+        show_state: false
+        title: Main Area
+        type: glance
+      - entities:
+          - entity: light.bedroom
+            tap_action:
+              action: toggle
+          - entity: light.bed_lamp
+            tap_action:
+              action: toggle
+          - entity: light.en_suite
+            tap_action:
+              action: toggle
+          - entity: light.spare_room
+            tap_action:
+              action: toggle
+          - entity: light.study
+            tap_action:
+              action: toggle
+          - entity: light.bathroom
+            tap_action:
+              action: toggle
+          - entity: light.passage
+            tap_action:
+              action: toggle
+        show_state: false
+        title: Rooms
+        type: glance
+      - entities:
+          - entity: light.patio
+            tap_action:
+              action: toggle
+          - entity: light.garden
+            tap_action:
+              action: toggle
+          - entity: light.front_door
+            tap_action:
+              action: toggle
+          - entity: light.driveway
+            tap_action:
+              action: toggle
+          - entity: light.side_ally
+            tap_action:
+              action: toggle
+        show_state: false
+        title: Outside
+        type: glance
+      - entities:
+          - entity: light.entrance
+            tap_action:
+              action: toggle
+          - entity: light.garage
+            tap_action:
+              action: toggle
+          - entity: light.pool
+            tap_action:
+              action: toggle
+        show_state: false
+        title: Other Lights
+        type: glance
+      - entities:
+          - entity: switch.geyser
+            tap_action:
+              action: toggle
+          - entity: switch.pool_pump
+            tap_action:
+              action: toggle
+        show_state: false
+        title: Switches
+        type: glance
+    icon: 'mdi:lightbulb-on-outline'
+    id: devs
+    title: Lights & Switches
+  - cards:
+      - entities:
+          - entity: input_boolean.enable_tv_mode
+            icon: 'mdi:television-classic'
+          - entity: script.sync_speaker_volume
+            icon: 'mdi:volume-high'
+            name: Sync Mini Volume
+          - entity: script.stream_radio
+            icon: 'mdi:radio'
+            name: Play KFM
+          - entity: script.send_ir_03
+            icon: 'mdi:remote'
+            name: Logitech Z5500 Power
+          - entity: script.send_ir_04
+            icon: 'mdi:remote'
+            name: Living Room TV Power
+        show_header_toggle: false
+        type: entities
+      - entity: media_player.kodi_lounge
+        type: 'custom:mini-media-player'
+      - entity: media_player.living_room_tv
+        type: 'custom:mini-media-player'
+      - artwork: cover
+        entity: media_player.jbl_speaker
+        type: 'custom:mini-media-player'
+      - entity: media_player.kitchen_speaker
+        type: 'custom:mini-media-player'
+    icon: 'mdi:kodi'
+    id: media
+    title: Media Devices
+  - cards:
+      - entity: weather.openweathermap
+        type: weather-forecast
+      - entities:
+          - entity: sensor.axpert_source
+            name: Using Power From
+            secondary_info: last-changed
+          - entity: sensor.axpert_charging_source
+            name: Charging Source
+            secondary_info: last-changed
+          - type: divider
+          - sensor.axpert_pvw
+          - sensor.axpert_charge_w
+          - sensor.axpert_discharge_w
+          - sensor.axpert_outw
+          - sensor.axpert_outp
+          - sensor.axpert_battv
+          - sensor.axpert_battp
+          - type: divider
+          - sensor.axpert_pvv
+          - sensor.axpert_pva
+        show_header_toggle: false
+        title: Inverter Status
+        type: entities
+      - entities:
+          - entity: sun.sun
+            secondary_info: last-changed
+          - type: divider
+          - sensor.house_temperature
+          - sensor.house_humidity
+          - sensor.house_pressure
+          - type: divider
+          - sensor.garage_temperature
+          - sensor.garage_humidity
+          - sensor.garage_pressure
+          - type: divider
+          - sensor.poolbox_temperature
+          - sensor.poolbox_humidity
+          - sensor.poolbox_pressure
+        show_header_toggle: false
+        title: Weather Sensors
+        type: entities
+      - entities:
+          - sensor.speedtest_download
+          - sensor.speedtest_upload
+          - sensor.speedtest_ping
+          - script.update_speedtest
+        show_header_toggle: false
+        title: Speed Test
+        type: entities
+      - entities:
+          - entity: person.michael
+            secondary_info: last-changed
+          - entity: device_tracker.pi_inverter
+          - entity: device_tracker.pi_volumio
+          - entity: device_tracker.pc_dump
+          - entity: device_tracker.pc_kodi
+          - entity: device_tracker.tv_samsung
+          - entity: device_tracker.pc_slim
+          - entity: device_tracker.pc_nas_lan1
+          - entity: device_tracker.pc_nas_lan2
+        show_header_toggle: false
+        state_filter:
+          - home
+        title: Device Status
+        type: entity-filter
+      - card:
+          icon: 'mdi:router-wireless'
+          show_header_toggle: false
+          title: Offline IoT Devices
+          type: entities
+        filter:
+          exclude:
+            - state: '>= 0'
+            - entity_id: sensor.node_up_sw04
+            - entity_id: sensor.node_up_dev09
+          include:
+            - entity_id: sensor.node_up_*
+              options:
+                secondary_info: last-changed
+        show_empty: false
+        type: 'custom:auto-entities'
+      - entities:
+          - entities:
+              - sensor.node_up_sw01
+              - sensor.node_up_sw02
+              - sensor.node_up_sw03
+              - sensor.node_up_sw04
+              - sensor.node_up_rb01
+              - sensor.node_up_rb02
+              - sensor.node_up_rb03
+              - sensor.node_up_dev01
+              - sensor.node_up_dev02
+              - sensor.node_up_dev03
+              - sensor.node_up_dev04
+              - sensor.node_up_dev05
+              - sensor.node_up_dev06
+              - sensor.node_up_dev09
+            head:
+              label: IoT Device Uptime
+              type: section
+            padding: 1
+            type: 'custom:fold-entity-row'
+        show_header_toggle: false
+        type: entities
+    icon: 'mdi:information-outline'
+    id: info
+    title: Information
+  - cards:
+      - entities:
+          - entity: input_boolean.notification_telegram
+          - entity: input_boolean.notification_linecrossing_driveway
+          - entity: input_boolean.notification_linecrossing_garden
+          - entity: binary_sensor.someone_home
+          - entity: binary_sensor.human_devices
+            name: Trackable Devices
+          - entity: input_boolean.force_someone_home
+          - entity: input_boolean.enable_auto_arm_alarm
+        show_header_toggle: false
+        type: entities
+      - entities:
+          - entity: input_boolean.timer_geyser_enabled
+          - entity: input_boolean.timer_geyser_workdays
+          - entity: input_datetime.geyser_on_time
+          - entity: input_number.geyser_duration
+          - entity: sensor.geyser_duration_now
+          - entity: switch.geyser
+        show_header_toggle: false
+        title: Geyser Timer
+        type: entities
+      - entities:
+          - entity: input_boolean.timer_poolpump_enabled
+          - entity: input_boolean.pool_override
+          - entity: input_datetime.poolpump_on_time
+          - entity: input_number.poolpump_max_duration
+          - entity: sensor.poolpump_duration_today
+          - entity: switch.pool_pump
+        show_header_toggle: false
+        title: Pool Pump Timer
+        type: entities
+      - entities:
+          - entity: automation.axpert_change_to_solar
+            name: Enable auto change to Solar
+          - input_number.solar_dropoff_power
+          - script.axpert_query_piri
+          - type: divider
+          - script.axpert_change_source_grid
+          - script.axpert_change_source_solar
+          - script.axpert_change_source_sbu
+          - type: divider
+          - script.axpert_charge_source_grid
+          - script.axpert_charge_source_solar
+          - script.axpert_charge_source_both
+          - script.axpert_charge_source_solar_only
+          - type: divider
+          - entity: script.restart_axpert
+            icon: 'mdi:ssh'
+            name: Restart Axpert Service
+        show_header_toggle: false
+        title: Inverter Tasks
+        type: entities
+      - entities:
+          - entity: input_datetime.morning_wakeup_time
+          - entity: input_boolean.enable_wakeup_light
+          - entity: input_boolean.enable_wakeup_radio
+        show_header_toggle: false
+        title: Morning Wakeup
+        type: entities
+      - entities:
+          - entity: input_boolean.showgroup_espnodetasks
+          - entity: input_boolean.showgroup_nodefirmware
+          - entity: script.restart_paradox
+            icon: 'mdi:ssh'
+        show_header_toggle: false
+        title: Tasks
+        type: entities
+      - card:
+          entities:
+            - script.request_hardware_status
+            - script.restart_all_nodes
+            - entity: script.node_restart_rb01
+              name: Restart RelayBoard 1
+            - entity: script.node_restart_rb02
+              name: Restart RelayBoard 2
+            - entity: script.node_restart_rb03
+              name: Restart RelayBoard 3
+            - entity: script.node_restart_sw01
+              name: Restart SwitchNode 1
+            - entity: script.node_restart_sw02
+              name: Restart SwitchNode 2
+            - entity: script.node_restart_sw03
+              name: Restart SwitchNode 3
+            - entity: script.node_restart_sw04
+              name: Restart SwitchNode 4
+            - entity: script.node_restart_dev01
+              name: Restart House
+            - entity: script.node_restart_dev02
+              name: Restart Garage
+            - entity: script.node_restart_dev03
+              name: Restart Geyser
+            - entity: script.node_restart_dev04
+              name: Restart Poolbox
+            - entity: script.node_restart_dev05
+              name: Restart Paradox
+            - entity: script.node_restart_dev06
+              name: Restart Sonoff Basic
+            - entity: script.node_restart_dev09
+              name: Restart Developer
+          show_header_toggle: false
+          title: ESP Node Tasks
+          type: entities
+        conditions:
+          - entity: input_boolean.showgroup_espnodetasks
+            state: 'on'
+        type: conditional
+      - card:
+          entities:
+            - type: section
+            - icon: 'mdi:open-in-new'
+              name: RelayBoard 1
+              type: weblink
+              url: 'http://192.168.25.51/'
+            - icon: 'mdi:open-in-new'
+              name: RelayBoard 2
+              type: weblink
+              url: 'http://192.168.25.52/'
+            - icon: 'mdi:open-in-new'
+              name: RelayBoard 3
+              type: weblink
+              url: 'http://192.168.25.53/'
+            - type: section
+            - icon: 'mdi:open-in-new'
+              name: SwitchNode 1
+              type: weblink
+              url: 'http://192.168.25.54/'
+            - icon: 'mdi:open-in-new'
+              name: SwitchNode 2
+              type: weblink
+              url: 'http://192.168.25.55/'
+            - icon: 'mdi:open-in-new'
+              name: SwitchNode 3
+              type: weblink
+              url: 'http://192.168.25.56/'
+            - icon: 'mdi:open-in-new'
+              name: SwitchNode 4
+              type: weblink
+              url: 'http://192.168.25.57/'
+            - type: section
+            - icon: 'mdi:open-in-new'
+              name: House
+              type: weblink
+              url: 'http://192.168.25.61/'
+            - icon: 'mdi:open-in-new'
+              name: Garage
+              type: weblink
+              url: 'http://192.168.25.62/'
+            - icon: 'mdi:open-in-new'
+              name: Geyser
+              type: weblink
+              url: 'http://192.168.25.63/'
+            - icon: 'mdi:open-in-new'
+              name: Poolbox
+              type: weblink
+              url: 'http://192.168.25.64/'
+            - icon: 'mdi:open-in-new'
+              name: Paradox
+              type: weblink
+              url: 'http://192.168.25.65/'
+            - icon: 'mdi:open-in-new'
+              name: Sonoff Basic
+              type: weblink
+              url: 'http://192.168.25.66/'
+            - type: section
+            - icon: 'mdi:open-in-new'
+              name: Developer (esp-01)
+              type: weblink
+              url: 'http://192.168.25.69/'
+          show_header_toggle: false
+          type: entities
+        conditions:
+          - entity: input_boolean.showgroup_nodefirmware
+            state: 'on'
+        type: conditional
+    icon: 'mdi:settings'
+    id: options
+    title: Settings
+  - badges: []
+    cards:
+      - columns:
+          - add_link: link
+            field: title
+            title: Title
+          - field: summary
+            title: Description
+        entity: sensor.torrentday_bluray
+        feed_attribute: entries
+        row_limit: 30
+        title: New BluRay Movies
+        type: 'custom:list-card'
+    icon: 'mdi:movie-open-outline'
+    panel: true

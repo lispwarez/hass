@@ -1,0 +1,15 @@
+  - platform: kodi
+    name: "Kodi Lounge"
+    host: 192.168.25.10
+    port: 80
+    turn_on_action:
+    - service: wake_on_lan.send_magic_packet
+      data:
+        mac: "50-46-5d-50-56-40"
+        broadcast_address: "192.168.25.255"
+    turn_off_action:
+    - service: kodi.call_method
+      data:
+        entity_id: media_player.kodi_lounge
+        method: System.Shutdown
+#

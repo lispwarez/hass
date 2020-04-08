@@ -1,0 +1,371 @@
+﻿#
+- platform: time_date
+  display_options:
+    - 'time'
+    - 'date'
+#
+- platform: uptime
+  unit_of_measurement: minutes
+#
+- platform: dnsip
+#
+- platform: statistics
+  name: stats_output
+  entity_id: sensor.axpert_outw
+  sampling_size: 200
+  max_age:
+    minutes: 60
+#
+- platform: statistics
+  name: stats_solar
+  entity_id: sensor.axpert_pvw
+  sampling_size: 300
+  max_age:
+    minutes: 60
+#
+- platform: history_stats
+  name: poolpump_duration
+  entity_id: switch.pool_pump
+  state: 'on'
+  type: time
+  start: '{{ now().replace(hour=0).replace(minute=0).replace(second=0) }}'
+  end: '{{ now() }}'
+#
+- platform: template
+  sensors:
+    poolpump_duration_today:
+      value_template: "{{ (states('sensor.poolpump_duration') | float * 60) | round(0) }}"
+      unit_of_measurement: "minutes"
+    poolpump_duration_now:
+      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed)) / 60) | int if is_state('switch.pool_pump', 'on') else 0 }}"
+      unit_of_measurement: "minutes"
+    geyser_duration_now:
+      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.geyser.last_changed)) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
+      unit_of_measurement: "minutes"
+    axpert_charge_w:
+      value_template: "{{ (states('sensor.axpert_battchargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
+      unit_of_measurement: "W"
+    axpert_discharge_w:
+      value_template: "{{ (states('sensor.axpert_battdischargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
+      unit_of_measurement: "W"
+    axpert_charging_source:
+      value_template: >-
+        {%- if is_state('sensor.axpert_charge_source', '0') -%}
+        Grid First
+        {%- elif is_state('sensor.axpert_charge_source', '1') -%}
+        Solar First
+        {%- elif is_state('sensor.axpert_charge_source', '2') -%}
+        Solar + Grid
+        {%- elif is_state('sensor.axpert_charge_source', '3') -%}
+        Solar Only
+        {%- endif -%}
+    axpert_source:
+      value_template: >-
+        {%- if is_state('binary_sensor.axpert_has_solar', 'off') and states('sensor.axpert_battdischargea') | int > 0 -%}
+        Battery
+        {%- elif is_state('sensor.axpert_output_source', '0') -%}
+        Grid (set grid)
+        {%- elif is_state('binary_sensor.axpert_output_from_grid', 'on') -%}
+        Grid (set solar)
+        {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_battdischargea') | int > 0 -%}
+        Solar + Battery
+        {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_pvw') | int  > 0 -%}
+        Solar
+        {%- else -%}
+        Unknown
+        {%- endif -%}
+    alarm_arm_mode:
+      value_template: >-
+        {%- if is_state('binary_sensor.alarm_status', 'on') and is_state('input_boolean.alarm_mode_stay', 'on') -%}
+        Stay
+        {%- elif is_state('binary_sensor.alarm_status', 'on') -%}
+        Armed
+        {%- else -%}
+        Disarmed
+        {%- endif -%}
+#########################################
+- platform: feedparser
+  name: "Torrentday BluRay"
+  feed_url: !secret torrentday_rss
+#########################################
+#
+# 0: grid, 1: solar, 2: sbu
+- platform: mqtt
+  name: axpert_output_source
+  state_topic: "axpert/piri"
+  value_template: '{{ value_json.os }}'
+#
+# 0: grid first, 1: solar first, 2: solar + grid, 3: solar only
+- platform: mqtt
+  name: axpert_charge_source
+  state_topic: "axpert/piri"
+  value_template: '{{ value_json.cs }}'
+#
+- platform: mqtt
+  name: axpert_inv
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.inV }}'
+  unit_of_measurement: "V"
+#
+- platform: mqtt
+  name: axpert_outva
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.outVa }}'
+  unit_of_measurement: "VA"
+#
+- platform: mqtt
+  name: axpert_outw
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.outW }}'
+  unit_of_measurement: "W"
+  expire_after: 20
+#
+- platform: mqtt
+  name: axpert_outp
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.outP }}'
+  unit_of_measurement: "%"
+#
+- platform: mqtt
+  name: axpert_battv
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.battV }}'
+  unit_of_measurement: "V"
+#
+- platform: mqtt
+  name: axpert_battchargea
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.battAi }}'
+  unit_of_measurement: "A"
+#
+- platform: mqtt
+  name: axpert_battdischargea
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.battAo }}'
+  unit_of_measurement: "A"
+#
+- platform: mqtt
+  name: axpert_battp
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.battP }}'
+  unit_of_measurement: "%"
+#
+- platform: mqtt
+  name: axpert_heatsinktemp
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.temp }}'
+  unit_of_measurement: "°C"
+#
+- platform: mqtt
+  name: axpert_pva
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.pvA }}'
+  unit_of_measurement: "A"
+#
+- platform: mqtt
+  name: axpert_pvv
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.pvV }}'
+  unit_of_measurement: "V"
+#
+- platform: mqtt
+  name: axpert_pvw
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.pvW }}'
+  unit_of_measurement: "W"
+#
+- platform: mqtt
+  name: axpert_pvva
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.pvVa }}'
+  unit_of_measurement: "VA"
+#
+- platform: mqtt
+  name: axpert_sccbattv
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.sccBattV }}'
+  unit_of_measurement: "V"
+#
+#########################################
+- platform: mqtt
+  name: node_up_rb01
+  expire_after: 80
+  state_topic: "ha/s/up/rb1"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_rb02
+  expire_after: 80
+  state_topic: "ha/s/up/rb2"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_rb03
+  expire_after: 80
+  state_topic: "ha/s/up/rb3"
+  unit_of_measurement: "minutes"
+######################
+- platform: mqtt
+  name: node_up_sw01
+  expire_after: 80
+  state_topic: "ha/s/up/sw1"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_sw02
+  expire_after: 80
+  state_topic: "ha/s/up/sw2"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_sw03
+  expire_after: 80
+  state_topic: "ha/s/up/sw3"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_sw04
+  expire_after: 80
+  state_topic: "ha/s/up/sw4"
+  unit_of_measurement: "minutes"
+######################
+- platform: mqtt
+  name: node_up_dev01
+  expire_after: 80
+  state_topic: "ha/s/up/d01"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev02
+  expire_after: 80
+  state_topic: "ha/s/up/d02"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev03
+  expire_after: 80
+  state_topic: "ha/s/up/d03"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev04
+  expire_after: 80
+  state_topic: "ha/s/up/d04"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev05
+  expire_after: 80
+  state_topic: "ha/s/up/d05"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev06
+  expire_after: 80
+  state_topic: "ha/s/up/d06"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: node_up_dev09
+  expire_after: 80
+  state_topic: "ha/s/up/d09"
+  unit_of_measurement: "minutes"
+#
+#########################################
+- platform: mqtt
+  name: house_temperature
+  state_topic: "tele/blah/SENSOR"
+  value_template: '{{ value_json.BME280.Temperature }}'
+  unit_of_measurement: "°C"
+#
+- platform: mqtt
+  name: house_humidity
+  state_topic: "tele/blah/SENSOR"
+  value_template: '{{ value_json.BME280.Humidity }}'
+  unit_of_measurement: "%"
+#
+- platform: mqtt
+  name: house_pressure
+  state_topic: "tele/blah/SENSOR"
+  value_template: '{{ value_json.BME280.Pressure }}'
+  unit_of_measurement: "hPa"
+############################
+- platform: mqtt
+  name: garage_temperature
+  state_topic: "ha/s/wi/d02"
+  value_template: '{{ value_json.t }}'
+  unit_of_measurement: "°C"
+#
+- platform: mqtt
+  name: garage_humidity
+  state_topic: "ha/s/wi/d02"
+  value_template: '{{ value_json.h }}'
+  unit_of_measurement: "%"
+#
+- platform: mqtt
+  name: garage_pressure
+  state_topic: "ha/s/wi/d02"
+  value_template: '{{ value_json.p }}'
+  unit_of_measurement: "hPa"
+############################
+- platform: mqtt
+  name: poolbox_temperature
+  state_topic: "ha/s/wi/d04"
+  value_template: '{{ value_json.t }}'
+  unit_of_measurement: "°C"
+#
+- platform: mqtt
+  name: poolbox_humidity
+  state_topic: "ha/s/wi/d04"
+  value_template: '{{ value_json.h }}'
+  unit_of_measurement: "%"
+#
+- platform: mqtt
+  name: poolbox_pressure
+  state_topic: "ha/s/wi/d04"
+  value_template: '{{ value_json.p }}'
+  unit_of_measurement: "hPa"
+#
+#########################################
+- platform: cert_expiry
+  name: ssl_local
+  host: !secret home_fqdn
+  port: 8443
+#
+- platform: cert_expiry
+  name: ssl_work
+  host: !secret work_fqdn
+#########################################
+- platform: otp
+  name: otp_bitstamp
+  token: !secret otp_bitstamp
+#
+- platform: otp
+  name: otp_nicehash
+  token: !secret otp_nicehash
+#
+- platform: otp
+  name: otp_luno
+  token: !secret otp_luno
+#
+- platform: otp
+  name: otp_altcointrader
+  token: !secret otp_altcointrader
+#
+- platform: otp
+  name: otp_discord
+  token: !secret otp_discord
+#
+- platform: otp
+  name: otp_coinbase
+  token: !secret otp_coinbase
+#########################################
+- platform: apcupsd
+  resources:
+  - bcharge
+  - loadpct
+  - numxfers
+  - status
+  - timeleft
+  - tonbatt
+#########################################

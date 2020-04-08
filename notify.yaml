@@ -1,0 +1,15 @@
+﻿#
+- platform: telegram
+  name: telegram_user_1
+  chat_id: !secret telegram_userid_1
+
+- platform: kodi
+  name: kodi_lounge
+  host: 192.168.25.10
+  port: 80
+
+- platform: group
+  name: all_platforms_user_1
+  services:
+  - service: kodi_lounge
+  - service: telegram_user_1

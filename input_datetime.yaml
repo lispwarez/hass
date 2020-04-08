@@ -1,0 +1,16 @@
+#
+geyser_on_time:
+  name: 'Turn on at'
+  has_date: false
+  has_time: true
+#
+poolpump_on_time:
+  name: 'Turn on at'
+  has_date: false
+  has_time: true
+#
+morning_wakeup_time:
+  name: 'Enable at'
+  has_date: false
+  has_time: true
+#

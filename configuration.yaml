@@ -1,0 +1,101 @@
+homeassistant:
+  name: Home
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  elevation: 21
+  unit_system: metric
+  time_zone: !secret home_timezone
+  customize: !include customize.yaml
+  customize_glob:
+    "script.node_restart_*":
+      icon: mdi:restart
+    "sensor.node_up_*":
+      icon: mdi:calendar-clock
+#  whitelist_external_dirs:
+#    - /tmp/hass
+#
+http:
+  server_port: 8443
+  base_url: !secret http_base_url_port
+  ssl_certificate: !secret ssl_cert
+  ssl_key: !secret ssl_key
+#
+#########################################################################
+# default_config
+automation: !include automations.yaml
+#cloud: !include cloud.yaml
+config:
+frontend:
+  themes: !include_dir_merge_named themes
+history: !include history.yaml
+logbook: !include logbook.yaml
+map:
+mobile_app:
+person:
+script: !include scripts.yaml
+#ssdp:
+sun:
+system_health:
+updater:
+#zeroconf:
+#########################################################################
+#
+mqtt:
+  broker: 127.0.0.1
+  port: 1883
+  client_id: home-assistant
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+#
+telegram_bot:
+  platform: webhooks
+  api_key: !secret telegram_api_key
+  allowed_chat_ids:
+  - !secret telegram_channel
+  - !secret telegram_userid_1
+  - !secret telegram_userid_2
+#
+apcupsd:
+  host: 192.168.25.9
+#
+shell_command:
+  restart_paradox: 'systemctl restart paradoxip'
+  restart_axpert: "ssh pi@192.168.25.7 'sudo systemctl restart axpert.service'"
+#
+shopping_list:
+#
+speedtestdotnet:
+#
+stream:
+#
+tts:
+  platform: google_translate
+  base_url: http://192.168.25.4:8123/
+#
+wake_on_lan:
+#
+weather:
+- platform: openweathermap
+  api_key: !secret openweathermap_api_key
+#
+#########################################################################
+zone: !include zones.yaml
+alert: !include alert.yaml
+light: !include lights.yaml
+#group: !include groups.yaml
+scene: !include scenes.yaml
+sensor: !include sensors.yaml
+camera: !include cameras.yaml
+switch: !include switches.yaml
+timer: !include timer.yaml
+notify: !include notify.yaml
+recorder: !include recorder.yaml
+media_player: !include media_players.yaml
+binary_sensor: !include binary_sensors.yaml
+#intent_script: !include intent_script.yaml
+input_boolean: !include input_boolean.yaml
+input_datetime: !include input_datetime.yaml
+input_number: !include input_number.yaml
+device_tracker: !include device_tracker.yaml
+google_assistant: !include google_assistant.yaml
+#

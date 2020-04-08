@@ -1,0 +1,6 @@
+exclude:
+  domains:
+  - input_boolean
+  - device_tracker
+  entities:
+  - binary_sensor.zones_idle

@@ -1,0 +1,28 @@
+- platform: generic
+  name: Garage
+  still_image_url: http://192.168.25.21/image/jpeg.cgi
+  #stream_source: rtsp://192.168.25.21:554
+  username: admin
+  password: !secret camera_password
+#
+- platform: generic
+  name: Inside
+  still_image_url: http://192.168.25.22/image/jpeg.cgi
+  #stream_source: rtsp://192.168.25.22:554
+  username: admin
+  password: !secret camera_password
+#
+- platform: generic
+  name: Garden
+  still_image_url: http://192.168.25.31/ISAPI/Streaming/channels/1/picture
+  #stream_source: rtsp://192.168.25.31:554
+  username: !secret hikvision_username
+  password: !secret hikvision_password
+#
+- platform: generic
+  name: Driveway
+  still_image_url: http://192.168.25.32/ISAPI/Streaming/channels/1/picture
+  #stream_source: rtsp://192.168.25.32:554
+  username: !secret hikvision_username
+  password: !secret hikvision_password
+#

@@ -1,0 +1,52 @@
+  project_id: !secret google_assistant_project_id
+  #api_key: !secret google_assistant_api_key
+  expose_by_default: false
+  entity_config:
+    media_player.kodi_lounge:
+      name: "media centre"
+      expose: true
+    light.kitchen_downlights:
+      name: "downlights"
+      expose: true
+    light.entrance:
+      expose: true
+    light.lounge:
+      expose: true
+    light.kitchen:
+      expose: true
+    light.scullary:
+      expose: true
+    light.dining_room:
+      expose: true
+    light.passage:
+      expose: true
+    light.bedroom:
+      expose: true
+    light.bed_lamp:
+      expose: true
+    light.en_suite:
+      expose: true
+    light.spare_room:
+      expose: true
+    light.study:
+      expose: true
+    light.bathroom:
+      expose: true
+    light.patio:
+      expose: true
+    light.garden:
+      expose: true
+    light.front_door:
+      expose: true
+    light.driveway:
+      expose: true
+    light.side_ally:
+      expose: true
+    light.garage:
+      expose: true
+    light.pool:
+      expose: true
+    switch.geyser:
+      expose: true
+    switch.pool_pump:
+      expose: true

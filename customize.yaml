@@ -1,0 +1,218 @@
+group.default_view:
+  friendly_name: Overview
+  icon: mdi:home-assistant
+script.request_hardware_status:
+  friendly_name: Refresh Status
+  icon: mdi:refresh
+script.update_speedtest:
+  friendly_name: Update Speedtest Results
+  icon: mdi:meteor
+script.garage_door_opener:
+  friendly_name: Open/Close Double Doors
+  icon: mdi:garage
+script.paradox_status_disarm:
+  friendly_name: 'Set status: Disarmed'
+script.paradox_status_stay:
+  friendly_name: 'Set status: Stay'
+script.paradox_status_arm:
+  friendly_name: 'Set status: Arm'
+script.restart_paradox:
+  friendly_name: Restart ParadoxIP service
+script.axpert_change_source_grid:
+  friendly_name: 'Set Source: Grid'
+  icon: mdi:import
+script.axpert_change_source_solar:
+  friendly_name: 'Set Source: Solar'
+  icon: mdi:import
+script.axpert_change_source_sbu:
+  friendly_name: 'Set Source: SBU'
+  icon: mdi:import
+script.axpert_query_piri:
+  friendly_name: Query Inverter Source
+  icon: mdi:download
+script.axpert_charge_source_grid:
+  friendly_name: 'Charge Source: Grid First'
+  icon: mdi:import
+script.axpert_charge_source_solar:
+  friendly_name: 'Charge Source: Solar First'
+  icon: mdi:import
+script.axpert_charge_source_both:
+  friendly_name: 'Charge Source: Solar + Grid'
+  icon: mdi:import
+script.axpert_charge_source_solar_only:
+  friendly_name: 'Charge Source: Solar Only'
+  icon: mdi:import
+script.restart_all_nodes:
+  friendly_name: Restart all Nodes
+  icon: mdi:restart
+script.node_restart_rb01:
+  friendly_name: RelayBoard 1
+script.node_restart_rb02:
+  friendly_name: RelayBoard 2
+script.node_restart_rb03:
+  friendly_name: RelayBoard 3
+script.node_restart_sw01:
+  friendly_name: Switch 1
+script.node_restart_sw02:
+  friendly_name: Switch 2
+script.node_restart_sw03:
+  friendly_name: Switch 3
+script.node_restart_sw04:
+  friendly_name: Switch 4
+script.node_restart_dev01:
+  friendly_name: House
+script.node_restart_dev02:
+  friendly_name: Garage
+script.node_restart_dev03:
+  friendly_name: Geyser
+script.node_restart_dev04:
+  friendly_name: Poolbox
+script.node_restart_dev05:
+  friendly_name: Paradox
+script.node_restart_dev06:
+  friendly_name: Sonoff Basic
+script.node_restart_dev09:
+  friendly_name: Test esp-01
+sensor.node_up_rb01:
+  friendly_name: Relayboard 1
+sensor.node_up_rb02:
+  friendly_name: Relayboard 2
+sensor.node_up_rb03:
+  friendly_name: Relayboard 3
+sensor.node_up_sw01:
+  friendly_name: SwitchNode 1
+sensor.node_up_sw02:
+  friendly_name: SwitchNode 2
+sensor.node_up_sw03:
+  friendly_name: SwitchNode 3
+sensor.node_up_sw04:
+  friendly_name: SwitchNode 4
+sensor.node_up_dev01:
+  friendly_name: House Node
+sensor.node_up_dev02:
+  friendly_name: Garage Node
+sensor.node_up_dev03:
+  friendly_name: Geyser Node
+sensor.node_up_dev04:
+  friendly_name: Pool Node
+sensor.node_up_dev05:
+  friendly_name: Paradox Node
+sensor.node_up_dev06:
+  friendly_name: Sonoff Basic
+sensor.node_up_dev09:
+  friendly_name: Test esp-01
+sensor.house_temperature:
+  friendly_name: Home Temperature
+  device_class: temperature
+sensor.house_pressure:
+  friendly_name: Home Pressure
+  icon: mdi:gauge
+sensor.house_humidity:
+  friendly_name: Home Humidity
+  device_class: humidity
+sensor.garage_temperature:
+  friendly_name: Garage Temperature
+  device_class: temperature
+sensor.garage_pressure:
+  friendly_name: Garage Pressure
+  icon: mdi:gauge
+sensor.garage_humidity:
+  friendly_name: Garage Humidity
+  device_class: humidity
+sensor.poolbox_temperature:
+  friendly_name: Poolbox Temperature
+  device_class: temperature
+sensor.poolbox_pressure:
+  friendly_name: Poolbox Pressure
+  icon: mdi:gauge
+sensor.poolbox_humidity:
+  friendly_name: Poolbox Humidity
+  device_class: humidity
+sensor.axpert_charging_source:
+  friendly_name: Charging Source
+sensor.axpert_source:
+  friendly_name: Using Power From
+sensor.axpert_outW:
+  friendly_name: Power Output
+  icon: mdi:export
+sensor.axpert_outP:
+  friendly_name: Output Load
+  icon: mdi:percent
+sensor.axpert_battV:
+  friendly_name: Battery Voltage
+  icon: mdi:flash-circle
+sensor.axpert_battP:
+  friendly_name: Battery Level
+  device_class: battery
+sensor.axpert_charge_w:
+  friendly_name: Battery Charge Power
+  icon: mdi:battery-plus
+sensor.axpert_discharge_w:
+  friendly_name: Battery Discharge Power
+  icon: mdi:battery-minus
+sensor.axpert_pvA:
+  friendly_name: Solar Amps
+sensor.axpert_pvV:
+  friendly_name: Solar Volts
+  icon: mdi:flash-circle
+sensor.axpert_pvVa:
+  friendly_name: Solar VA
+sensor.axpert_pvW:
+  friendly_name: Solar Power
+  icon: mdi:import
+sensor.axpert_heatSinkDegC:
+  friendly_name: Temperature
+  device_class: temperature
+sensor.poolpump_duration_today:
+  friendly_name: Total duration today
+binary_sensor.door_contact_garage_double:
+  friendly_name: Garage double door
+binary_sensor.door_contact_garage_single:
+  friendly_name: Garage single door
+binary_sensor.axpert_on_solar:
+  friendly_name: Generating Solar Power
+  entity_picture: /local/solar.png
+binary_sensor.paradox_output_1:
+  friendly_name: Alarm Alarming!
+binary_sensor.paradox_output_2:
+  friendly_name: Alarm Panic
+binary_sensor.alarm_status:
+  friendly_name: Alarm Status Armed
+binary_sensor.paradox_output_4:
+  friendly_name: Paradox Remote Button 2
+binary_sensor.paradox_zone_01:
+  friendly_name: Main Bedroom
+  device_class: motion
+binary_sensor.paradox_zone_04:
+  device_class: opening
+  friendly_name: Back Door
+binary_sensor.paradox_zone_05:
+  friendly_name: Panic Button
+  device_class: opening
+binary_sensor.paradox_zone_14:
+  friendly_name: Lounge
+  device_class: motion
+binary_sensor.paradox_zone_15:
+  friendly_name: Garage
+  device_class: motion
+binary_sensor.paradox_zone_16:
+  friendly_name: Garden Beam
+  device_class: motion
+binary_sensor.paradox_zone_17:
+  friendly_name: Back Alley
+  device_class: motion
+binary_sensor.someone_home:
+  friendly_name: Someone home
+media_player.kodi_lounge:
+  icon: mdi:kodi
+person.michael:
+  entity_picture: /local/lispwarez.png
+device_tracker.lispwarezs7:
+  icon: mdi:cellphone-android
+  entity_picture: /local/lispwarez.png
+device_tracker.android_34765e9b8ae60fbb:
+  friendly_name: Intel Tablet
+device_tracker.android_2df998f6d0c3d620:
+  friendly_name: S4 Mini
+sensor.geyser_duration_now:
+  friendly_name: Geyser On Duration

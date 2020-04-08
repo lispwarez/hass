@@ -1,0 +1,249 @@
+#
+- platform: group
+  name: Outside
+  entities:
+  - light.patio
+  - light.garden
+  - light.front_door
+#  - light.back_door
+  - light.driveway
+  - light.side_ally
+#
+- platform: group
+  name: house_lights
+  entities:
+#  - light.back_door
+  - light.bathroom
+  - light.bed_lamp
+  - light.bedroom
+  - light.dining_room
+  - light.driveway
+  - light.en_suite
+  - light.entrance
+  - light.front_door
+  - light.garage
+  - light.garden
+  - light.kitchen
+  - light.kitchen_downlights
+  - light.lounge
+  - light.passage
+  - light.patio
+  - light.pool
+  - light.scullary
+  - light.side_ally
+  - light.spare_room
+  - light.study
+################################################################################
+- platform: mqtt
+  name: "Spare Room"
+  command_topic: "ha/c/r/rb1-1"
+  state_topic: "ha/s/r/rb1-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "En suite"
+  command_topic: "ha/c/r/rb1-2"
+  state_topic: "ha/s/r/rb1-2"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Bedroom"
+  command_topic: "ha/c/r/rb1-3"
+  state_topic: "ha/s/r/rb1-3"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+#- platform: mqtt
+#  name: "Back Door"
+#  command_topic: "ha/c/r/rb1-4"
+#  state_topic: "ha/s/r/rb1-4"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+- platform: mqtt
+  name: "Study"
+  command_topic: "ha/c/r/rb1-5"
+  state_topic: "ha/s/r/rb1-5"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Bathroom"
+  command_topic: "ha/c/r/rb1-6"
+  state_topic: "ha/s/r/rb1-6"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Scullary"
+  command_topic: "ha/c/r/rb1-7"
+  state_topic: "ha/s/r/rb1-7"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+#- platform: mqtt
+#  name: "Light 1_8"
+#  command_topic: "ha/c/r/rb1-8"
+#  state_topic: "ha/s/r/rb1-8"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+################################################################################
+- platform: mqtt
+  name: "Kitchen Downlights"
+  command_topic: "ha/c/r/rb2-1"
+  state_topic: "ha/s/r/rb2-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Kitchen"
+  command_topic: "ha/c/r/rb2-2"
+  state_topic: "ha/s/r/rb2-2"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Passage"
+  command_topic: "ha/c/r/rb2-3"
+  state_topic: "ha/s/r/rb2-3"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Dining Room"
+  command_topic: "ha/c/r/rb2-4"
+  state_topic: "ha/s/r/rb2-4"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Lounge"
+  command_topic: "ha/c/r/rb2-5"
+  state_topic: "ha/s/r/rb2-5"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Garden"
+  command_topic: "ha/c/r/rb2-6"
+  state_topic: "ha/s/r/rb2-6"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Patio"
+  command_topic: "ha/c/r/rb2-7"
+  state_topic: "ha/s/r/rb2-7"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+#- platform: mqtt
+#  name: "Light 2_8"
+#  command_topic: "ha/c/r/rb2-8"
+#  state_topic: "ha/s/r/rb2-8"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+################################################################################
+- platform: mqtt
+  name: "Front Door"
+  command_topic: "ha/c/r/rb3-2"
+  state_topic: "ha/s/r/rb3-2"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Garage"
+  command_topic: "ha/c/r/rb3-3"
+  state_topic: "ha/s/r/rb3-3"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Driveway"
+  command_topic: "ha/c/r/rb3-4"
+  state_topic: "ha/s/r/rb3-4"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Side Ally"
+  command_topic: "ha/c/r/rb3-1"
+  state_topic: "ha/s/r/rb3-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Entrance"
+  command_topic: "ha/c/r/rb3-5"
+  state_topic: "ha/s/r/rb3-5"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+#- platform: mqtt
+#  name: "Light 3_6"
+#  command_topic: "ha/c/r/rb3-6"
+#  state_topic: "ha/s/r/rb3-6"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+#- platform: mqtt
+#  name: "Light 3_7"
+#  command_topic: "ha/c/r/rb3-7"
+#  state_topic: "ha/s/r/rb3-7"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+#- platform: mqtt
+#  name: "Light 3_8"
+#  command_topic: "ha/c/r/rb3-8"
+#  state_topic: "ha/s/r/rb3-8"
+#  payload_on: "1"
+#  payload_off: "0"
+#  retain: True
+#
+################################################################################
+- platform: mqtt
+  name: "Pool"
+  command_topic: "ha/c/r/d04-2"
+  state_topic: "ha/s/r/d04-2"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+################################################################################
+- platform: mqtt
+  name: "Bed Lamp"
+  command_topic: "ha/c/r/d06-1"
+  state_topic: "ha/s/r/d06-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+################################################################################

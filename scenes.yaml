@@ -1,0 +1,49 @@
+- id: asdasdasdasd
+  name: Bed Time
+  entities:
+    light.bathroom:
+      state: 'off'
+    light.bedroom:
+      state: 'off'
+    light.dining_room:
+      state: 'off'
+    light.driveway:
+      state: 'off'
+    light.en_suite:
+      state: 'off'
+    light.entrance:
+      state: 'off'
+    light.front_door:
+      state: 'on'
+    light.garage:
+      state: 'off'
+    light.garden:
+      state: 'off'
+    light.kitchen:
+      state: 'off'
+    light.kitchen_downlights:
+      state: 'off'
+    light.lounge:
+      state: 'off'
+    light.passage:
+      state: 'off'
+    light.patio:
+      state: 'off'
+    light.pool:
+      state: 'off'
+    light.scullary:
+      state: 'off'
+    light.side_ally:
+      state: 'off'
+    light.spare_room:
+      state: 'off'
+    light.study:
+      state: 'off'
+    media_player.jbl_speaker:
+      state: 'off'
+    media_player.kitchen_speaker:
+      state: 'off'
+    media_player.kodi_lounge:
+      state: 'off'
+    media_player.living_room_tv:
+      state: 'off'

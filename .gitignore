@@ -1,0 +1,8 @@
+!*.yaml
+!.gitignore
+!*.md
+
+cloud.yaml
+known_devices.yaml
+secrets.yaml
+zones.yaml

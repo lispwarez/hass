@@ -1,0 +1,9 @@
+garage_light:
+  name: "Garage Light"
+  duration: '00:01:00'
+bedroom_light:
+  name: "Bedroom Light"
+  duration: '00:01:00'
+garden_light:
+  name: Garden Light
+  duration: '00:04:00'

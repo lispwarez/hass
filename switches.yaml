@@ -1,0 +1,26 @@
+- platform: mqtt
+  name: "Geyser"
+  command_topic: "ha/c/r/d03-1"
+  state_topic: "ha/s/r/d03-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+- platform: mqtt
+  name: "Pool Pump"
+  command_topic: "ha/c/r/d04-1"
+  state_topic: "ha/s/r/d04-1"
+  payload_on: "1"
+  payload_off: "0"
+  retain: True
+#
+#- platform: mqtt
+#  name: "alarm"
+#  command_topic: "Paradox/C/P1"
+#  state_topic: "ha/e/s/d05-3"
+#  payload_on: "Stay"
+#  payload_off: "Disarm"
+#  state_on: "1"
+#  state_off: "0"
+#  retain: false
+#

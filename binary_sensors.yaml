@@ -1,0 +1,178 @@
+#
+- platform: workday
+  country: ZA
+#
+- platform: template
+  sensors:
+    telegram_notifications:
+      value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and states('sensor.uptime') | int > 1 }}"
+    human_devices:
+      value_template: "{{ is_state('device_tracker.lispwarezs7', 'home') or is_state('device_tracker.galaxy_s6', 'home') }}"
+    someone_home:
+      value_template: "{{ is_state('binary_sensor.human_devices', 'on') or is_state('input_boolean.force_someone_home', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
+    doors_open_when_armed:
+      value_template: "{{ is_state('binary_sensor.alarm_status', 'on') and (is_state('binary_sensor.door_contact_garage_double', 'on') or is_state('binary_sensor.door_contact_garage_single', 'on')) }}"
+    power_warning:
+      value_template: "{{ states('sensor.axpert_inv') | int < 210 }}"
+    solar_below_800:
+      value_template: "{{ states('sensor.axpert_pvw') | int < 800 }}"
+      delay_on: 50
+    solar_below_cutoff:
+      value_template: "{{ states('sensor.axpert_pvw') | int < states('input_number.solar_dropoff_power') | int }}"
+      delay_on: 50
+    zones_idle:
+      value_template: >-
+        {{
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.door_contact_garage_double.last_changed)) >= 1800 and
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.door_contact_garage_single.last_changed)) >= 1800 and
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_04.last_changed)) >= 1800 and
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_15.last_changed)) >= 1800 and
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_16.last_changed)) >= 1800 and
+        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_17.last_changed)) >= 1800 }}
+    axpert_output_source_is_grid:
+      value_template: >-
+        {{ is_state('sensor.axpert_output_source', '0') or 
+          (is_state('binary_sensor.axpert_has_solar', 'off') and is_state('sensor.axpert_battdischargea', '0')) or 
+          (is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_battdischargea', '0') and (states('sensor.axpert_outw') | int > (states('sensor.axpert_pvw') | int - states('sensor.axpert_charge_w') | int) + 10))
+        }}
+    axpert_output_from_grid:
+      value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'on') }}"
+      delay_on: 6
+      delay_off: 6
+    axpert_output_from_solar:
+      value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') }}"
+      delay_on: 6
+      delay_off: 6
+    alarm_status:
+      value_template: "{{ is_state('binary_sensor.paradox_output_3', 'on') }}"
+      delay_on: 1
+      delay_off: 1
+#
+################################################################################
+#
+- platform: mqtt
+  name: axpert_charging
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.charging }}'
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: axpert_charge_ac
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.charge_ac }}'
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: axpert_charge_scc
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.charge_scc }}'
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: axpert_has_solar
+  state_topic: "axpert/pigs"
+  value_template: '{{ value_json.on_solar }}'
+  payload_on: "1"
+  payload_off: "0"
+#
+################################################################################
+#
+- platform: hikvision
+  name: Garden
+  host: 192.168.25.31
+  username: !secret hikvision_username
+  password: !secret hikvision_password
+#
+- platform: hikvision
+  name: Driveway
+  host: 192.168.25.32
+  username: !secret hikvision_username
+  password: !secret hikvision_password
+#
+################################################################################
+#
+- platform: mqtt
+  name: door_contact_garage_double
+  device_class: opening
+  state_topic: "ha/e/s/d02-2"
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: door_contact_garage_single
+  device_class: opening
+  state_topic: "ha/e/s/d02-1"
+  payload_on: "1"
+  payload_off: "0"
+#
+################################################################################
+#
+- platform: mqtt
+  name: paradox_output_1
+  state_topic: "ha/e/s/d05-1"
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: paradox_output_2
+  state_topic: "ha/e/s/d05-2"
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: paradox_output_3
+  state_topic: "ha/e/s/d05-3"
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: paradox_output_4
+  state_topic: "ha/e/s/d05-4"
+  payload_on: "1"
+  payload_off: "0"
+#
+- platform: mqtt
+  name: paradox_zone_01
+  state_topic: "Paradox/Zone/Main Bedroom"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_04
+  state_topic: "Paradox/Zone/Back Door"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_05
+  state_topic: "Paradox/Zone/Panic"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_14
+  state_topic: "Paradox/Zone/Lounge"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_15
+  state_topic: "Paradox/Zone/Garage"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_16
+  state_topic: "Paradox/Zone/Front Garden"
+  payload_on: "ON"
+  payload_off: "OFF"
+#
+- platform: mqtt
+  name: paradox_zone_17
+  state_topic: "Paradox/Zone/Back Alley"
+  payload_on: "ON"
+  payload_off: "OFF"
+#

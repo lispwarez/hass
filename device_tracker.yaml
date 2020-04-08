@@ -1,0 +1,31 @@
+﻿##############  Wired devices ##############
+# PC Dump
+- platform: nmap_tracker
+  home_interval: 2
+  hosts: 192.168.25.101
+#
+# PC Kodi MCE
+- platform: nmap_tracker
+  home_interval: 2
+  hosts: 192.168.25.10
+#
+# TV Samsung
+- platform: nmap_tracker
+  home_interval: 2
+  hosts: 192.168.25.14
+#
+# Inverter PI
+- platform: nmap_tracker
+  home_interval: 5
+  hosts: 192.168.25.7
+#
+# NAS WD
+- platform: nmap_tracker
+  home_interval: 10
+  hosts: 192.168.25.11
+#
+# NAS WD
+- platform: nmap_tracker
+  home_interval: 10
+  hosts: 192.168.25.12
+#
