@@ -102,14 +102,14 @@ sensor.node_up_dev06:
 sensor.node_up_dev09:
   friendly_name: Test esp-01
 sensor.house_temperature:
-  friendly_name: Home Temperature
   device_class: temperature
+  friendly_name: Lounge Temperature
 sensor.house_pressure:
-  friendly_name: Home Pressure
+  friendly_name: Lounge Pressure
   icon: mdi:gauge
 sensor.house_humidity:
-  friendly_name: Home Humidity
   device_class: humidity
+  friendly_name: Lounge Humidity
 sensor.garage_temperature:
   friendly_name: Garage Temperature
   device_class: temperature
@@ -163,6 +163,8 @@ sensor.axpert_pvW:
 sensor.axpert_heatSinkDegC:
   friendly_name: Temperature
   device_class: temperature
+sensor.alarm_arm_mode:
+  friendly_name: Alarm Status
 sensor.poolpump_duration_today:
   friendly_name: Total duration today
 binary_sensor.door_contact_garage_double:

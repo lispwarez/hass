@@ -1,5 +1,5 @@
-  #db_url: mysql+pymysql://hass:KiK2JOVHgO@127.0.0.1/hass?charset=utf8
-  purge_keep_days: 2
+  db_url: mysql+pymysql://hass:CjqCMz78c4@localhost/homeassistant?charset=utf8
+  purge_keep_days: 7
   purge_interval: 1
   exclude:
     domains:
@@ -75,6 +75,7 @@
     - input_boolean.force_someone_home
     - input_boolean.alarm_mode_stay
     
+    - binary_sensor.alarm_status
     - binary_sensor.axpert_charging
     - binary_sensor.axpert_charge_ac
     - binary_sensor.axpert_charge_scc
@@ -95,7 +96,7 @@
     - binary_sensor.solar_below_cutoff
     - binary_sensor.solar_below_800
     - binary_sensor.driveway_motion
-#    - binary_sensor.driveway_line_crossing
+    - binary_sensor.driveway_line_crossing
     - binary_sensor.garden_motion
     - binary_sensor.garden_line_crossing
     - binary_sensor.telegram_notifications

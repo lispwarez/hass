@@ -2,21 +2,6 @@ custom_header:
   chevrons: false
   compact_mode: true
 name: Where I lay my head is home
-resources:
-  - type: js
-    url: /community_plugin/vertical-stack-in-card/vertical-stack-in-card.js
-  - type: module
-    url: /community_plugin/lovelace-fold-entity-row/fold-entity-row.js
-  - type: module
-    url: /community_plugin/mini-media-player/mini-media-player-bundle.js
-  - type: module
-    url: /community_plugin/lovelace-auto-entities/auto-entities.js
-  - type: module
-    url: /community_plugin/lovelace-card-mod/card-mod.js
-  - type: js
-    url: /local/list-card.js?v=0
-  - type: module
-    url: /community_plugin/custom-header/custom-header.js
 views:
   - cards:
       - cards:
@@ -40,104 +25,118 @@ views:
             show_name: true
             show_state: true
             type: glance
-          - cards:
-              - entity: sensor.axpert_pvw
-                max: 1700
-                type: gauge
-              - entity: sensor.axpert_outw
-                max: 5000
-                type: gauge
-            type: horizontal-stack
-          - cards:
-              - entity: sensor.axpert_charge_w
-                max: 1000
-                name: Battery Charge
-                type: gauge
-              - entity: sensor.axpert_discharge_w
-                max: 1000
-                name: Battery Discharge
-                type: gauge
-            type: horizontal-stack
-          - card:
-              show_state: false
-              type: glance
+          - animation: 'off'
+            entity: sensor.axpert_pvw
+            max: 2000
+            title_position: inside
+            type: 'custom:bar-card'
+            style: |-
+              bar-card-container {
+               padding-bottom: 8px;
+               padding-top: 8px;
+              }
+          - animation: 'off'
+            entity: sensor.axpert_outw
+            max: 5000
+            title_position: inside
+            type: 'custom:bar-card'
+            style: |-
+              bar-card-container {
+               padding-bottom: 8px;
+               padding-top: 8px;
+              }
+          - animation: 'off'
+            columns: 2
             entities:
-              - entity: light.front_door
-                tap_action:
-                  action: toggle
-              - entity: light.entrance
-                tap_action:
-                  action: toggle
-              - entity: light.garage
-                tap_action:
-                  action: toggle
-              - entity: light.lounge
-                tap_action:
-                  action: toggle
-              - entity: light.dining_room
-                name: Diningroom
-                tap_action:
-                  action: toggle
-              - entity: light.kitchen
-                tap_action:
-                  action: toggle
-              - entity: light.kitchen_downlights
-                name: Downlights
-                tap_action:
-                  action: toggle
-              - entity: light.scullary
-                tap_action:
-                  action: toggle
-              - entity: light.passage
-                tap_action:
-                  action: toggle
-              - entity: light.study
-                tap_action:
-                  action: toggle
-              - entity: light.bedroom
-                tap_action:
-                  action: toggle
-              - entity: light.bed_lamp
-                tap_action:
-                  action: toggle
-              - entity: light.en_suite
-                tap_action:
-                  action: toggle
-              - entity: light.spare_room
-                tap_action:
-                  action: toggle
-              - entity: light.bathroom
-                tap_action:
-                  action: toggle
-              - entity: light.garden
-                tap_action:
-                  action: toggle
-              - entity: light.patio
-                tap_action:
-                  action: toggle
-              - entity: light.pool
-                tap_action:
-                  action: toggle
-              - entity: light.driveway
-                tap_action:
-                  action: toggle
-              - entity: light.side_ally
-                tap_action:
-                  action: toggle
-              - entity: light.back_door
-                tap_action:
-                  action: toggle
-              - entity: switch.pool_pump
-                tap_action:
-                  action: toggle
-              - entity: switch.geyser
-                tap_action:
-                  action: toggle
-            show_empty: false
-            state_filter:
-              - 'on'
-            type: entity-filter
+              - sensor.axpert_charge_w
+              - sensor.axpert_discharge_w
+            max: 1000
+            title_position: inside
+            type: 'custom:bar-card'
+            style: |-
+              bar-card-container {
+               padding-top: 8px;
+              }
         type: vertical-stack
+      - card:
+          show_state: false
+          type: glance
+        entities:
+          - entity: light.front_door
+            tap_action:
+              action: toggle
+          - entity: light.entrance
+            tap_action:
+              action: toggle
+          - entity: light.garage
+            tap_action:
+              action: toggle
+          - entity: light.lounge
+            tap_action:
+              action: toggle
+          - entity: light.dining_room
+            name: Diningroom
+            tap_action:
+              action: toggle
+          - entity: light.kitchen
+            tap_action:
+              action: toggle
+          - entity: light.kitchen_downlights
+            name: Downlights
+            tap_action:
+              action: toggle
+          - entity: light.scullary
+            tap_action:
+              action: toggle
+          - entity: light.passage
+            tap_action:
+              action: toggle
+          - entity: light.study
+            tap_action:
+              action: toggle
+          - entity: light.bedroom
+            tap_action:
+              action: toggle
+          - entity: light.bed_lamp
+            tap_action:
+              action: toggle
+          - entity: light.en_suite
+            tap_action:
+              action: toggle
+          - entity: light.spare_room
+            tap_action:
+              action: toggle
+          - entity: light.bathroom
+            tap_action:
+              action: toggle
+          - entity: light.garden
+            tap_action:
+              action: toggle
+          - entity: light.patio
+            tap_action:
+              action: toggle
+          - entity: light.pool
+            tap_action:
+              action: toggle
+          - entity: light.driveway
+            tap_action:
+              action: toggle
+          - entity: light.side_ally
+            tap_action:
+              action: toggle
+          - entity: light.back_door
+            tap_action:
+              action: toggle
+          - entity: switch.pool_pump
+            tap_action:
+              action: toggle
+          - entity: switch.geyser
+            tap_action:
+              action: toggle
+        show_empty: false
+        state_filter:
+          - 'on'
+        type: entity-filter
     icon: 'mdi:home-assistant'
     id: home
     panel: false
@@ -158,8 +157,11 @@ views:
                 name: Single
             show_name: true
             show_state: false
+            style: |
+              ha-card {
+               border-bottom: 1px solid var(--primary-color);
+              }
             type: glance
-          - type: divider
           - cards:
               - entity: script.paradox_status_arm
                 hold_action:
@@ -186,14 +188,16 @@ views:
                   action: toggle
                 type: picture
             type: horizontal-stack
-          - type: divider
           - entities:
               - entity: sensor.alarm_arm_mode
                 icon: 'mdi:shield-home'
                 name: Alarm Status
+            style: |
+              ha-card {
+               border-top: 1px solid var(--primary-color);
+              }
             type: entities
-        title: Security
-        type: 'custom:vertical-stack-in-card'
+        type: 'custom:stack-in-card'
       - cards:
           - cards:
               - entity: script.garage_close_and_arm_alarm
@@ -234,12 +238,13 @@ views:
                 tap_action:
                   action: toggle
                 type: entity-button
+            title: Garage Stuff
             type: horizontal-stack
-          - style:
-              padding-bottom: 8px
-            type: divider
-        title: Garage Stuff
-        type: 'custom:vertical-stack-in-card'
+        style: |
+          ha-card {
+            padding-bottom: 10px; 
+          }
+        type: 'custom:stack-in-card'
       - entities:
           - entity: binary_sensor.zones_idle
             name: Zones Idle
@@ -426,13 +431,11 @@ views:
     id: media
     title: Media Devices
   - cards:
-      - entity: weather.openweathermap
-        type: weather-forecast
       - entities:
           - entity: sensor.axpert_source
             name: Using Power From
             secondary_info: last-changed
-          - entity: sensor.axpert_charging_source
+          - entity: sensor.axpert_charge_source
             name: Charging Source
             secondary_info: last-changed
           - type: divider
@@ -446,6 +449,7 @@ views:
           - type: divider
           - sensor.axpert_pvv
           - sensor.axpert_pva
+          - sensor.axpert_pvva
         show_header_toggle: false
         title: Inverter Status
         type: entities
@@ -467,30 +471,33 @@ views:
         show_header_toggle: false
         title: Weather Sensors
         type: entities
-      - entities:
-          - sensor.speedtest_download
-          - sensor.speedtest_upload
-          - sensor.speedtest_ping
-          - script.update_speedtest
-        show_header_toggle: false
-        title: Speed Test
-        type: entities
+      - entity: weather.openweathermap
+        type: weather-forecast
       - entities:
           - entity: person.michael
             secondary_info: last-changed
           - entity: device_tracker.pi_inverter
-          - entity: device_tracker.pi_volumio
-          - entity: device_tracker.pc_dump
           - entity: device_tracker.pc_kodi
           - entity: device_tracker.tv_samsung
-          - entity: device_tracker.pc_slim
           - entity: device_tracker.pc_nas_lan1
           - entity: device_tracker.pc_nas_lan2
         show_header_toggle: false
         state_filter:
+          - Frontosa
           - home
         title: Device Status
         type: entity-filter
+      - entities:
+          - entity: sensor.speedtest_download
+            secondary_info: last-changed
+          - entity: sensor.speedtest_upload
+            secondary_info: last-changed
+          - entity: sensor.speedtest_ping
+            secondary_info: last-changed
+          - script.update_speedtest
+        show_header_toggle: false
+        title: Speed Test
+        type: entities
       - card:
           icon: 'mdi:router-wireless'
           show_header_toggle: false
@@ -543,6 +550,8 @@ views:
             name: Trackable Devices
           - entity: input_boolean.force_someone_home
           - entity: input_boolean.enable_auto_arm_alarm
+          - entity: script.restart_paradox
+            icon: 'mdi:ssh'
         show_header_toggle: false
         type: entities
       - entities:
@@ -571,14 +580,42 @@ views:
           - input_number.solar_dropoff_power
           - script.axpert_query_piri
           - type: divider
-          - script.axpert_change_source_grid
-          - script.axpert_change_source_solar
-          - script.axpert_change_source_sbu
+          - entity: script.axpert_change_source_grid
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Grid') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_change_source_solar
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Solar') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_change_source_sbu
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'SBU') %} var(--paper-item-icon-active-color) {% endif %}
+              }
           - type: divider
-          - script.axpert_charge_source_grid
-          - script.axpert_charge_source_solar
-          - script.axpert_charge_source_both
-          - script.axpert_charge_source_solar_only
+          - entity: script.axpert_charge_source_grid
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Grid First') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_solar
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar First') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_both
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar + Grid') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_solar_only
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar Only') %} var(--paper-item-icon-active-color) {% endif %}
+              }
           - type: divider
           - entity: script.restart_axpert
             icon: 'mdi:ssh'
@@ -593,121 +630,115 @@ views:
         show_header_toggle: false
         title: Morning Wakeup
         type: entities
-      - entities:
-          - entity: input_boolean.showgroup_espnodetasks
-          - entity: input_boolean.showgroup_nodefirmware
-          - entity: script.restart_paradox
-            icon: 'mdi:ssh'
-        show_header_toggle: false
-        title: Tasks
-        type: entities
-      - card:
-          entities:
-            - script.request_hardware_status
-            - script.restart_all_nodes
-            - entity: script.node_restart_rb01
-              name: Restart RelayBoard 1
-            - entity: script.node_restart_rb02
-              name: Restart RelayBoard 2
-            - entity: script.node_restart_rb03
-              name: Restart RelayBoard 3
-            - entity: script.node_restart_sw01
-              name: Restart SwitchNode 1
-            - entity: script.node_restart_sw02
-              name: Restart SwitchNode 2
-            - entity: script.node_restart_sw03
-              name: Restart SwitchNode 3
-            - entity: script.node_restart_sw04
-              name: Restart SwitchNode 4
-            - entity: script.node_restart_dev01
-              name: Restart House
-            - entity: script.node_restart_dev02
-              name: Restart Garage
-            - entity: script.node_restart_dev03
-              name: Restart Geyser
-            - entity: script.node_restart_dev04
-              name: Restart Poolbox
-            - entity: script.node_restart_dev05
-              name: Restart Paradox
-            - entity: script.node_restart_dev06
-              name: Restart Sonoff Basic
-            - entity: script.node_restart_dev09
-              name: Restart Developer
-          show_header_toggle: false
-          title: ESP Node Tasks
-          type: entities
-        conditions:
-          - entity: input_boolean.showgroup_espnodetasks
-            state: 'on'
-        type: conditional
-      - card:
-          entities:
-            - type: section
-            - icon: 'mdi:open-in-new'
-              name: RelayBoard 1
-              type: weblink
-              url: 'http://192.168.25.51/'
-            - icon: 'mdi:open-in-new'
-              name: RelayBoard 2
-              type: weblink
-              url: 'http://192.168.25.52/'
-            - icon: 'mdi:open-in-new'
-              name: RelayBoard 3
-              type: weblink
-              url: 'http://192.168.25.53/'
-            - type: section
-            - icon: 'mdi:open-in-new'
-              name: SwitchNode 1
-              type: weblink
-              url: 'http://192.168.25.54/'
-            - icon: 'mdi:open-in-new'
-              name: SwitchNode 2
-              type: weblink
-              url: 'http://192.168.25.55/'
-            - icon: 'mdi:open-in-new'
-              name: SwitchNode 3
-              type: weblink
-              url: 'http://192.168.25.56/'
-            - icon: 'mdi:open-in-new'
-              name: SwitchNode 4
-              type: weblink
-              url: 'http://192.168.25.57/'
-            - type: section
-            - icon: 'mdi:open-in-new'
-              name: House
-              type: weblink
-              url: 'http://192.168.25.61/'
-            - icon: 'mdi:open-in-new'
-              name: Garage
-              type: weblink
-              url: 'http://192.168.25.62/'
-            - icon: 'mdi:open-in-new'
-              name: Geyser
-              type: weblink
-              url: 'http://192.168.25.63/'
-            - icon: 'mdi:open-in-new'
-              name: Poolbox
-              type: weblink
-              url: 'http://192.168.25.64/'
-            - icon: 'mdi:open-in-new'
-              name: Paradox
-              type: weblink
-              url: 'http://192.168.25.65/'
-            - icon: 'mdi:open-in-new'
-              name: Sonoff Basic
-              type: weblink
-              url: 'http://192.168.25.66/'
-            - type: section
-            - icon: 'mdi:open-in-new'
-              name: Developer (esp-01)
-              type: weblink
-              url: 'http://192.168.25.69/'
-          show_header_toggle: false
-          type: entities
-        conditions:
-          - entity: input_boolean.showgroup_nodefirmware
-            state: 'on'
-        type: conditional
+      - cards:
+          - entities:
+              - entities:
+                  - icon: 'mdi:open-in-new'
+                    name: RelayBoard 1
+                    type: weblink
+                    url: 'http://192.168.25.51/'
+                  - icon: 'mdi:open-in-new'
+                    name: RelayBoard 2
+                    type: weblink
+                    url: 'http://192.168.25.52/'
+                  - icon: 'mdi:open-in-new'
+                    name: RelayBoard 3
+                    type: weblink
+                    url: 'http://192.168.25.53/'
+                  - type: section
+                  - icon: 'mdi:open-in-new'
+                    name: SwitchNode 1
+                    type: weblink
+                    url: 'http://192.168.25.54/'
+                  - icon: 'mdi:open-in-new'
+                    name: SwitchNode 2
+                    type: weblink
+                    url: 'http://192.168.25.55/'
+                  - icon: 'mdi:open-in-new'
+                    name: SwitchNode 3
+                    type: weblink
+                    url: 'http://192.168.25.56/'
+                  - icon: 'mdi:open-in-new'
+                    name: SwitchNode 4
+                    type: weblink
+                    url: 'http://192.168.25.57/'
+                  - type: section
+                  - icon: 'mdi:open-in-new'
+                    name: House
+                    type: weblink
+                    url: 'http://192.168.25.61/'
+                  - icon: 'mdi:open-in-new'
+                    name: Garage
+                    type: weblink
+                    url: 'http://192.168.25.62/'
+                  - icon: 'mdi:open-in-new'
+                    name: Geyser
+                    type: weblink
+                    url: 'http://192.168.25.63/'
+                  - icon: 'mdi:open-in-new'
+                    name: Poolbox
+                    type: weblink
+                    url: 'http://192.168.25.64/'
+                  - icon: 'mdi:open-in-new'
+                    name: Paradox
+                    type: weblink
+                    url: 'http://192.168.25.65/'
+                  - icon: 'mdi:open-in-new'
+                    name: Sonoff Basic
+                    type: weblink
+                    url: 'http://192.168.25.66/'
+                  - type: section
+                  - icon: 'mdi:open-in-new'
+                    name: Developer (esp-01)
+                    type: weblink
+                    url: 'http://192.168.25.69/'
+                head:
+                  label: IoT Node Config Links
+                  type: section
+                padding: 1
+                type: 'custom:fold-entity-row'
+            show_header_toggle: false
+            type: entities
+          - entities:
+              - entities:
+                  - entity: script.request_hardware_status
+                  - entity: script.restart_all_nodes
+                  - entity: script.node_restart_rb01
+                    name: Restart RelayBoard 1
+                  - entity: script.node_restart_rb02
+                    name: Restart RelayBoard 2
+                  - entity: script.node_restart_rb03
+                    name: Restart RelayBoard 3
+                  - entity: script.node_restart_sw01
+                    name: Restart SwitchNode 1
+                  - entity: script.node_restart_sw02
+                    name: Restart SwitchNode 2
+                  - entity: script.node_restart_sw03
+                    name: Restart SwitchNode 3
+                  - entity: script.node_restart_sw04
+                    name: Restart SwitchNode 4
+                  - entity: script.node_restart_dev01
+                    name: Restart House
+                  - entity: script.node_restart_dev02
+                    name: Restart Garage
+                  - entity: script.node_restart_dev03
+                    name: Restart Geyser
+                  - entity: script.node_restart_dev04
+                    name: Restart Poolbox
+                  - entity: script.node_restart_dev05
+                    name: Restart Paradox
+                  - entity: script.node_restart_dev06
+                    name: Restart Sonoff Basic
+                  - entity: script.node_restart_dev09
+                    name: Restart Developer
+                head:
+                  label: ESP Node Tasks
+                  type: section
+                padding: 1
+                type: 'custom:fold-entity-row'
+            show_header_toggle: false
+            type: entities
+        type: 'custom:stack-in-card'
     icon: 'mdi:settings'
     id: options
     title: Settings

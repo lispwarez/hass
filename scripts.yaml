@@ -34,10 +34,14 @@ wakeup_radio:
   sequence:
   - condition: template
     value_template: "{{ is_state('input_boolean.enable_wakeup_radio', 'on') }}"
-  - service: media_player.volume_set
-    entity_id: media_player.jbl_speaker
+  - service: media_player.turn_on
     data:
-      volume_level: "0.33"
+      entity_id: media_player.jbl_speaker
+  - delay: '00:00:02'
+  - service: media_player.volume_set
+    data:
+      entity_id: media_player.jbl_speaker
+      volume_level: 0.35
   - service: script.stream_radio
 #
 stream_radio:
@@ -51,8 +55,8 @@ stream_radio:
 sync_speaker_volume:
   sequence:
   - service: media_player.volume_set
-    entity_id: media_player.kitchen_speaker
     data_template:
+      entity_id: media_player.kitchen_speaker
       volume_level: "{{ states.media_player.jbl_speaker.attributes.volume_level }}"
 #
 send_message:
@@ -78,6 +82,13 @@ send_message_kodi:
       title: "Home-Assistant"
       message: "{{ message }}"
 #
+send_inverter_data:
+  sequence:
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "Solar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }} \nBattery Level: {{ states.sensor.axpert_battp.state_with_unit }} \nSun Elevation {{ states.sun.sun.attributes.elevation }}"
+      disable_notification: true
 ################################################################################
 #
 garage_close_and_arm_alarm:
@@ -166,7 +177,7 @@ paradox_set_alarm_mode:
 axpert_set_defaults:
   sequence: 
   - service: mqtt.publish
-    data: { topic: "axpert/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
+    data: { topic: "axpert/info/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
 #
 axpert_change_source_grid:
   sequence: { service: mqtt.publish, data: { topic: "axpert/comm", payload: "POP00" } }

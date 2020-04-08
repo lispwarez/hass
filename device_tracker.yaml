@@ -11,7 +11,7 @@
 #
 # TV Samsung
 - platform: nmap_tracker
-  home_interval: 2
+  home_interval: 1
   hosts: 192.168.25.14
 #
 # Inverter PI

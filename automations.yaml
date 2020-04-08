@@ -13,9 +13,22 @@
     data:
       name: midnight2
 #
+- alias: "New day resets"
+  initial_state: true
+  trigger:
+    platform: state
+    entity_id: sensor.time
+    to: "00:01"
+  action:
+  - service: automation.turn_on
+    entity_id: automation.axpert_change_to_solar
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.timer_poolpump_enabled
+  - service: input_boolean.turn_off
+    entity_id: input_boolean.pool_override
 ################################################
-#
-################################################
+#  {% set ignore = ['light.house_lights', 'light.outside'] %}
+#  {{ (states.light|list + states.switch|list) | rejectattr('state','eq','on') | map(attribute='entity_id') | reject('in',ignore) | join(', ') }}
 #
 - alias: "Internet IP Changed"
   initial_state: true
@@ -38,7 +51,7 @@
     entity_id: sensor.speedtest_download
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and states('sensor.speedtest_download') | int < 18 }}"
+    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and states('sensor.speedtest_download') | int < 48 }}"
   action:
     service: telegram_bot.send_message
     data_template:
@@ -51,37 +64,15 @@
   - platform: state
     entity_id: sensor.time
     to: "04:00"
-  condition:
-  - condition: template
-    value_template: "{{ not is_state('media_player.jbl_speaker', 'playing') }}"
   action:
+  - service: media_player.turn_on
+    data:
+      entity_id: media_player.kitchen_speaker
+  - delay: '00:00:02'
   - service: media_player.volume_set
     data:
       entity_id: media_player.kitchen_speaker
-      volume_level: "0.30"
-  - service: media_player.volume_set
-    data:
-      entity_id: media_player.jbl_speaker
-      volume_level: "0.33"
-#
-- alias: "set volume afternoon"
-  initial_state: False
-  trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: "13:00"
-  condition:
-  - condition: template
-    value_template: "{{ not is_state('media_player.jbl_speaker', 'playing') }}"
-  action:
-  - service: media_player.volume_set
-    data:
-      entity_id: media_player.kitchen_speaker
-      volume_level: "0.40"
-  - service: media_player.volume_set
-    data:
-      entity_id: media_player.jbl_speaker
-      volume_level: "0.40"
+      volume_level: 0.3
 #
 - alias: "Goodbye, now quiet"
   initial_state: true
@@ -217,15 +208,15 @@
     entity_id: binary_sensor.telegram_notifications
     state: "on"
   action:
-  - service: persistent_notification.create
-    data_template:
-      title: "Device Tracker Found New Device"
-      message: "Hostname: {{trigger.event.data.host_name}} \n Entity: {{trigger.event.data.entity_id}} \n MAC: {{ trigger.event.data.mac }}"
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
       message: "New device found on the network Hostname: {{trigger.event.data.host_name}} <br /> Entity: {{trigger.event.data.entity_id}} <br /> MAC: {{ trigger.event.data.mac }}"
       parse_mode: html
+  - service: persistent_notification.create
+    data_template:
+      title: "Device Tracker Found New Device"
+      message: "Hostname: {{trigger.event.data.host_name}} \n Entity: {{trigger.event.data.entity_id}} \n MAC: {{ trigger.event.data.mac }}"
 #
 - alias: "device tracker offline"
   initial_state: true
@@ -289,6 +280,7 @@
 #
 #########################################################################################################
 ################### Inverter / UPS Stuff ######################
+#
 - alias: "Axpert-Pi not updating"
   initial_state: true
   trigger:
@@ -349,7 +341,7 @@
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter source changed to: {%- if is_state('sensor.axpert_output_source', '0') %} Grid {%- elif is_state('sensor.axpert_output_source', '1') %} Solar {%- elif is_state('sensor.axpert_output_source', '2') %} SBU {% endif %} \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }} \nSun Elevation {{ states.sun.sun.attributes.elevation }}"
+      message: "Inverter source changed to: {{ states('sensor.axpert_output_source') }}"
 #
 - alias: "Axpert change to solar"
   initial_state: true
@@ -359,11 +351,11 @@
   condition:
   - condition: template
     value_template: >-
-      {{ is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_output_source', '0') and 
+      {{ is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_output_source', 'Grid') and 
       (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 and 
-      not (state_attr('sun.sun', 'elevation') | int < 32 and is_state_attr('sun.sun', 'rising', true)) and 
+      (not (state_attr('sun.sun', 'elevation') | int < 28 and is_state_attr('sun.sun', 'rising', true)) or states('sensor.axpert_outw') | int < states('sensor.axpert_pvva') | int * 0.8) and 
       not (state_attr('sun.sun', 'elevation') | int < 14 and is_state_attr('sun.sun', 'rising', false)) and
-      states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1400 }}
+      states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1800 }}
   action:
   - service: script.axpert_change_source_solar
   - service: logbook.log
@@ -379,14 +371,15 @@
     to: "off"
   condition:
   - condition: template
-    value_template: "{{ not is_state('sensor.axpert_output_source', '0') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and not is_state('sensor.axpert_output_source', 'Grid') and states('sensor.uptime') | int > 1 }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter change to Grid due to no solar input \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+      message: "Inverter change to Grid due to no solar input"
       disable_notification: true
+  - service: script.send_inverter_data
   - service: logbook.log
     data_template:
       name: "Inverter Changeover"
@@ -403,14 +396,15 @@
     for: '00:01:00'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter change to Grid due to battery below 75% \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+      message: "Setting inverter source to Grid due to battery below 75%"
       disable_notification: true
+  - service: script.send_inverter_data
   - service: logbook.log
     data_template:
       name: "Inverter Changeover"
@@ -425,14 +419,15 @@
     value_template: "{{ is_state('binary_sensor.solar_below_cutoff', 'on') and states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter change to Grid due to low solar power \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+      message: "Setting inverter source to Grid due to low solar power"
       disable_notification: true
+  - service: script.send_inverter_data
   - service: logbook.log
     data_template:
       name: "Inverter Changeover"
@@ -443,19 +438,21 @@
 - alias: "Axpert change to grid 3"
   initial_state: true
   trigger:
-  - platform: template
-    value_template: "{{ states('sensor.axpert_battdischargea') | int > 0 }}"
-    for: 00:01:00
+  - platform: numeric_state
+    entity_id: sensor.axpert_battdischargea
+    above: 0
+    for: '00:01:28'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter change to Grid due to prolonged battery usage \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+      message: "Setting inverter source to Grid due to prolonged battery usage"
       disable_notification: true
+  - service: script.send_inverter_data
   - service: logbook.log
     data_template:
       name: "Inverter Changeover"
@@ -468,39 +465,38 @@
   trigger:
   - platform: template
     value_template: "{{ states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
-    for: 00:01:00
+    for: '00:01:30'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "Inverter change to Grid due to using more power than solar \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+      message: "Setting inverter source to Grid due to using more power than solar"
       disable_notification: true
+  - service: script.send_inverter_data
   - service: logbook.log
     data_template:
       name: "Inverter Changeover"
-      message: "due to prolonged battery usage"
+      message: "due to using more power than making"
       entity_id: sensor.axpert_battp
       domain: sensor
 #
 - alias: "Axpert charge source to solar only"
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: binary_sensor.axpert_has_solar
-    to: "on"
+  - platform: template
+    value_template: "{{ is_state('sun.sun', 'above_horizon') and is_state('binary_sensor.axpert_has_solar', 'on') }}"
   action:
   - service: script.axpert_charge_source_solar_only
 #
 - alias: "Axpert charge source to solar grid"
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: binary_sensor.axpert_has_solar
-    to: "off"
+  - platform: template
+    value_template: "{{ is_state('sun.sun', 'below_horizon') or is_state('binary_sensor.axpert_has_solar', 'off') }}"
   action:
   - service: script.axpert_charge_source_both
 #
@@ -519,6 +515,167 @@
     data_template:
       target: !secret telegram_userid_1
       message: "*Bad power from grid* \nCurrent Voltage: {{ states.sensor.axpert_inv.state_with_unit }} \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
+#
+#########################################################################################################
+################### Pool Stuff ######################
+#
+- alias: "Pool pump not on today"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.time') == states('input_datetime.poolpump_on_time')[0:5] }}"
+  condition:
+  - condition: state
+    entity_id: input_boolean.timer_poolpump_enabled
+    state: "off"
+  action:
+  - service: telegram_bot.send_message
+    data:
+      target: !secret telegram_userid_1
+      message: "Pool pump not enabled today?"
+#
+- alias: "Pool pump ON for conditions"
+  initial_state: true
+  trigger:
+  - platform: time_pattern
+    minutes: '/2'
+  condition:
+  - condition: template
+    value_template: >-
+      {{ is_state('input_boolean.timer_poolpump_enabled', 'on') and is_state('switch.pool_pump', 'off') and 
+      is_state('binary_sensor.axpert_output_from_solar', 'on') and states('sensor.axpert_outw') | int < 800 and 
+      states('sensor.poolpump_duration_today') | int < states('input_number.poolpump_max_duration') | int and 
+      (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed)) > 240 and 
+      states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and 
+      not (state_attr('sun.sun', 'elevation') | int < 30 and is_state_attr('sun.sun', 'rising', false)) }}
+  action:
+  - service: switch.turn_on
+    entity_id: switch.pool_pump
+#
+- alias: "Pool pump OFF if max duration reached"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.poolpump_duration_today') | int >= states('input_number.poolpump_max_duration') | int or states('sensor.time') >= '17:00' }}"
+  condition:
+  - condition: template
+    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') and is_state('input_boolean.timer_poolpump_enabled', 'on') }}"
+  action:
+  - service: switch.turn_off
+    entity_id: switch.pool_pump
+  - service: logbook.log
+    data:
+      name: "Pool Pump Off"
+      message: "Reached max duration"
+      entity_id: switch.pool_pump
+      domain: switch
+#
+- alias: "Pool pump OFF if conditions 1"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ is_state('binary_sensor.axpert_output_from_grid', 'on') or is_state('binary_sensor.axpert_has_solar', 'off') }}"
+  condition:
+  - condition: template
+    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
+  action:
+  - service: switch.turn_off
+    entity_id: switch.pool_pump
+  - service: logbook.log
+    data:
+      name: "Pool Pump Off"
+      message: "No longer on solar power"
+      entity_id: switch.pool_pump
+      domain: switch
+#
+- alias: "Pool pump OFF if conditions 2"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.axpert_outw') | int > 1800 }}"
+    for: 00:00:05
+  - platform: template
+    value_template: "{{ states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
+    for: 00:00:30
+  condition:
+  - condition: template
+    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
+  action:
+  - service: switch.turn_off
+    entity_id: switch.pool_pump
+  - service: logbook.log
+    data:
+      name: "Pool Pump Off"
+      message: "Power usage too high"
+      entity_id: switch.pool_pump
+      domain: switch
+#
+- alias: "Pool pump OFF if conditions 3"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ is_state('binary_sensor.solar_below_800', 'on') and states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
+  condition:
+  - condition: template
+    value_template: "{{ states('sensor.poolpump_duration_now') | int > 0 and is_state('input_boolean.pool_override', 'off') }}"
+  action:
+  - service: switch.turn_off
+    entity_id: switch.pool_pump
+  - service: logbook.log
+    data:
+      name: "Pool Pump Off"
+      message: "Solar below 800"
+      entity_id: switch.pool_pump
+      domain: switch
+#
+- alias: "Pool pump OFF if conditions 4"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('sensor.axpert_battdischargea') | int > 0 }}"
+    for: 00:00:30
+  condition:
+  - condition: template
+    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
+  action:
+  - service: switch.turn_off
+    entity_id: switch.pool_pump
+  - service: logbook.log
+    data:
+      name: "Pool Pump Off"
+      message: "Using battery too long"
+      entity_id: switch.pool_pump
+      domain: switch
+#
+- alias: "Pool light OFF by Timer"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: light.pool
+    to: "on"
+    for:
+      minutes: 30
+  condition:
+  - condition: state
+    entity_id: binary_sensor.zones_idle
+    state: "on"
+  action:
+  - service: light.turn_off
+    entity_id: light.pool
+#
+- alias: "Pool light OFF by Zone idle"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.zones_idle
+    to: "on"
+  condition:
+  - condition: state
+    entity_id: light.pool
+    state: "on"
+  action:
+  - service: light.turn_off
+    entity_id: light.pool
 #
 #########################################################################################################
 ################### Alarm Stuff ######################
@@ -794,7 +951,9 @@
   - platform: state
     entity_id: binary_sensor.door_contact_garage_double
     to: "on"
-  action: { service: timer.finish, entity_id: timer.garage_light }
+  action:
+    service: timer.cancel
+    entity_id: timer.garage_light
 #
 - alias: "Garage Light OFF when alarm armed"
   initial_state: true
@@ -802,15 +961,20 @@
   - platform: state
     entity_id: binary_sensor.alarm_status
     to: "on"
-  action: { service: timer.finish, entity_id: timer.garage_light }
+  action:
+    service: timer.cancel
+    entity_id: timer.garage_light
 #
 - alias: "Garage Light ON by timer"
   initial_state: true
   trigger:
-  - platform: event
-    event_type: timer.started
-    event_data:
-      entity_id: timer.garage_light
+  - platform: state
+    entity_id: timer.garage_light
+    to: "active"
+  condition:
+  - condition: state
+    entity_id: light.garage
+    state: "off"
   action:
     service: light.turn_on
     entity_id: light.garage
@@ -821,40 +985,28 @@
   - platform: state
     entity_id: timer.garage_light
     to: "idle"
-  action: { service: light.turn_off, entity_id: light.garage }
+  condition:
+  - condition: state
+    entity_id: light.garage
+    state: "on"
+  action:
+    service: light.turn_off
+    entity_id: light.garage
 #
-################################################
-#
-- alias: "Bedroom Light ON with motion"
+- alias: "Garage Light OFF cancel timer"
   initial_state: true
   trigger:
   - platform: state
-    entity_id: binary_sensor.paradox_zone_01
-    to: "on"
+    entity_id: light.garage
+    to: "off"
   condition:
   - condition: template
-    value_template: "{{ is_state('input_boolean.bedtime_mode', 'off') and is_state('light.bedroom', 'off') }}"
-  action: 
-  - service: script.light_timer_bedroom
-#
-- alias: "Bedroom Light ON by timer"
-  initial_state: true
-  trigger:
-  - platform: event
-    event_type: timer.started
-    event_data:
-      entity_id: timer.bedroom_light
+    value_template: "{{ not is_state('timer.garage_light', 'idle') }}"
   action:
-    service: light.turn_on
-    entity_id: light.bed_lamp
+    service: timer.cancel
+    entity_id: timer.garage_light
 #
-- alias: "Bedroom Light OFF by timer"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: timer.bedroom_light
-    to: "idle"
-  action: { service: light.turn_off, entity_id: light.bed_lamp }
+################################################
 #
 - alias: "Welcome home. Have some lights"
   initial_state: true
@@ -876,7 +1028,9 @@
   trigger:
   - platform: template
     value_template: "{{ state_attr('sun.sun', 'elevation') < 3 and is_state('binary_sensor.someone_home', 'on') }}"
-  action: { service: light.turn_on, entity_id: light.kitchen_downlights }
+  action:
+  - service: light.turn_on
+    entity_id: light.kitchen_downlights
 #
 - alias: "Morning Wakeup Lights"
   initial_state: true
@@ -908,34 +1062,6 @@
   - service: light.turn_off
     entity_id: light.outside
 #
-- alias: "Garden timer on from motion"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.paradox_zone_16
-  condition:
-  - condition: template
-    value_template: "{{ is_state('light.garden', 'off') and is_state('binary_sensor.alarm_status', 'on') }}"
-  action:
-    service: script.light_timer_garden
-#
-- alias: "Garden Light ON by timer"
-  initial_state: true
-  trigger:
-  - platform: event
-    event_type: timer.started
-    event_data:
-      entity_id: timer.garden_light
-  action: { service: light.turn_on, entity_id: light.garden }
-#
-- alias: "Garden Light OFF by timer"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: timer.garden_light
-    to: "idle"
-  action: { service: light.turn_off, entity_id: light.garden }
-#
 - alias: "Lights left on"
   initial_state: true
   trigger:
@@ -951,6 +1077,68 @@
     data:
       target: !secret telegram_userid_1
       message: "All lights off"
+#
+- alias: "Bedroom Light ON with motion"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.paradox_zone_01
+  condition:
+  - condition: template
+    value_template: "{{ is_state('input_boolean.bedtime_mode', 'off') and is_state('light.bedroom', 'off') }}"
+  action: 
+  - service: script.light_timer_bedroom
+#
+- alias: "Bedroom Light ON by timer"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: timer.bedroom_light
+    to: "active"
+  action:
+    service: light.turn_on
+    entity_id: light.bed_lamp
+#
+- alias: "Bedroom Light OFF by timer"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: timer.bedroom_light
+    to: "idle"
+  action:
+    service: light.turn_off
+    entity_id: light.bed_lamp
+#
+- alias: "Garden timer ON from motion"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.paradox_zone_16
+  condition:
+  - condition: template
+    value_template: "{{ is_state('light.garden', 'off') and is_state('binary_sensor.alarm_status', 'on') }}"
+  action:
+  - service: script.light_timer_garden
+#
+- alias: "Garden Light ON by timer"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: timer.garden_light
+    to: "active"
+  action:
+  - service: light.turn_on
+    entity_id: light.garden
+#
+- alias: "Garden Light OFF by timer"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: timer.garden_light
+    to: "idle"
+  action:
+  - service: light.turn_off
+    entity_id: light.garden
 #
 #########################################################################################################
 ################### Device Timers ######################
@@ -975,151 +1163,6 @@
   action:
   - service: switch.turn_off
     entity_id: switch.geyser
-#
-################################################
-- alias: "Pool pump not on today"
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ states('sensor.time') == states('input_datetime.poolpump_on_time')[0:5] }}"
-  condition:
-  - condition: state
-    entity_id: input_boolean.timer_poolpump_enabled
-    state: "off"
-  action:
-  - service: telegram_bot.send_message
-    data:
-      target: !secret telegram_userid_1
-      message: "Pool pump not enabled today?"
-#
-- alias: "Pool Override reset"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.axpert_has_solar
-    to: "on"
-  action:
-    service: input_boolean.turn_off
-    entity_id: input_boolean.pool_override
-#
-- alias: "Pool pump ON for conditions"
-  initial_state: true
-  trigger:
-  - platform: time_pattern
-    minutes: '/2'
-  condition:
-  - condition: template
-    value_template: >-
-      {{ is_state('input_boolean.timer_poolpump_enabled', 'on') and is_state('switch.pool_pump', 'off') and 
-      is_state('binary_sensor.axpert_output_from_solar', 'on') and states('sensor.axpert_outw') | int < 450 and 
-      states('sensor.poolpump_duration_today') | int < states('input_number.poolpump_max_duration') | int and 
-      (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed)) > 240 and 
-      states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and states('sensor.time') < '16:00' }}
-  action:
-  - service: switch.turn_on
-    entity_id: switch.pool_pump
-#
-- alias: "Pool pump OFF if max duration reached"
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ states('sensor.poolpump_duration_today') | int >= states('input_number.poolpump_max_duration') | int or states('sensor.time') >= '17:00' }}"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') and is_state('input_boolean.timer_poolpump_enabled', 'on') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Reached max duration"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: "Pool pump OFF if conditions 1"
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ is_state('binary_sensor.solar_below_800', 'on') and states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
-  condition:
-  - condition: template
-    value_template: "{{ states('sensor.poolpump_duration_now') | int > 0 and is_state('input_boolean.pool_override', 'off') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Solar below 800"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: "Pool pump OFF if conditions 2"
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ states('sensor.axpert_outw') | int > 1400 }}"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Power usage too high"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: "Pool pump OFF if conditions 3"
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_from_grid', 'on') }}"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "No longer on solar power"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: "Pool light OFF by Timer"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: light.pool
-    to: "on"
-    for:
-      minutes: 30
-  condition:
-  - condition: state
-    entity_id: binary_sensor.zones_idle
-    state: "on"
-  action:
-  - service: light.turn_off
-    entity_id: light.pool
-#
-- alias: "Pool light OFF by Zone idle"
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.zones_idle
-    to: "on"
-  condition:
-  - condition: state
-    entity_id: light.pool
-    state: "on"
-  action:
-  - service: light.turn_off
-    entity_id: light.pool
 #
 #########################################################################################################
 ################### Telegram BOT ######################
@@ -1341,7 +1384,7 @@
       chat_id: '{{ trigger.event.data.user_id }}'
       inline_keyboard: []
       message: "*==Current system status==* \n
-        Alarm is currently {% if is_state('binary_sensor.alarm_status','on') %}Armed{% else %}Disarmed{% endif %} \n
+        Alarm status is {{ states.sensor.alarm_arm_mode.state }} \n
         Power source is {{ states.sensor.axpert_source.state }} \n
         Power usage is {{ states.sensor.axpert_outw.state_with_unit }} \n
         Battery level is {{ states.sensor.axpert_battp.state_with_unit }} \n

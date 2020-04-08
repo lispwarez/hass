@@ -9,19 +9,19 @@
 #
 - platform: dnsip
 #
-- platform: statistics
-  name: stats_output
-  entity_id: sensor.axpert_outw
-  sampling_size: 200
-  max_age:
-    minutes: 60
+#- platform: statistics
+#  name: stats_output
+#  entity_id: sensor.axpert_outw
+#  sampling_size: 200
+#  max_age:
+#    minutes: 60
 #
-- platform: statistics
-  name: stats_solar
-  entity_id: sensor.axpert_pvw
-  sampling_size: 300
-  max_age:
-    minutes: 60
+#- platform: statistics
+#  name: stats_solar
+#  entity_id: sensor.axpert_pvw
+#  sampling_size: 300
+#  max_age:
+#    minutes: 60
 #
 - platform: history_stats
   name: poolpump_duration
@@ -37,10 +37,10 @@
       value_template: "{{ (states('sensor.poolpump_duration') | float * 60) | round(0) }}"
       unit_of_measurement: "minutes"
     poolpump_duration_now:
-      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed)) / 60) | int if is_state('switch.pool_pump', 'on') else 0 }}"
+      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed) + 10) / 60) | int if is_state('switch.pool_pump', 'on') else 0 }}"
       unit_of_measurement: "minutes"
     geyser_duration_now:
-      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.geyser.last_changed)) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
+      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.geyser.last_changed) + 10) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
       unit_of_measurement: "minutes"
     axpert_charge_w:
       value_template: "{{ (states('sensor.axpert_battchargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
@@ -48,29 +48,16 @@
     axpert_discharge_w:
       value_template: "{{ (states('sensor.axpert_battdischargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
       unit_of_measurement: "W"
-    axpert_charging_source:
-      value_template: >-
-        {%- if is_state('sensor.axpert_charge_source', '0') -%}
-        Grid First
-        {%- elif is_state('sensor.axpert_charge_source', '1') -%}
-        Solar First
-        {%- elif is_state('sensor.axpert_charge_source', '2') -%}
-        Solar + Grid
-        {%- elif is_state('sensor.axpert_charge_source', '3') -%}
-        Solar Only
-        {%- endif -%}
     axpert_source:
       value_template: >-
         {%- if is_state('binary_sensor.axpert_has_solar', 'off') and states('sensor.axpert_battdischargea') | int > 0 -%}
         Battery
-        {%- elif is_state('sensor.axpert_output_source', '0') -%}
-        Grid (set grid)
-        {%- elif is_state('binary_sensor.axpert_output_from_grid', 'on') -%}
-        Grid (set solar)
         {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_battdischargea') | int > 0 -%}
         Solar + Battery
+        {%- elif is_state('binary_sensor.axpert_output_source_is_grid', 'on') -%}
+        Grid (set {{states('sensor.axpert_output_source') }})
         {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_pvw') | int  > 0 -%}
-        Solar
+        Solar (set {{states('sensor.axpert_output_source') }})
         {%- else -%}
         Unknown
         {%- endif -%}
@@ -89,100 +76,98 @@
   feed_url: !secret torrentday_rss
 #########################################
 #
-# 0: grid, 1: solar, 2: sbu
 - platform: mqtt
   name: axpert_output_source
-  state_topic: "axpert/piri"
+  state_topic: "axpert/info/piri"
   value_template: '{{ value_json.os }}'
 #
-# 0: grid first, 1: solar first, 2: solar + grid, 3: solar only
 - platform: mqtt
   name: axpert_charge_source
-  state_topic: "axpert/piri"
+  state_topic: "axpert/info/piri"
   value_template: '{{ value_json.cs }}'
 #
 - platform: mqtt
   name: axpert_inv
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.inV }}'
   unit_of_measurement: "V"
 #
 - platform: mqtt
   name: axpert_outva
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.outVa }}'
   unit_of_measurement: "VA"
 #
 - platform: mqtt
   name: axpert_outw
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.outW }}'
   unit_of_measurement: "W"
   expire_after: 20
 #
 - platform: mqtt
   name: axpert_outp
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.outP }}'
   unit_of_measurement: "%"
 #
 - platform: mqtt
   name: axpert_battv
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.battV }}'
   unit_of_measurement: "V"
 #
 - platform: mqtt
   name: axpert_battchargea
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.battAi }}'
   unit_of_measurement: "A"
 #
 - platform: mqtt
   name: axpert_battdischargea
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.battAo }}'
   unit_of_measurement: "A"
 #
 - platform: mqtt
   name: axpert_battp
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.battP }}'
   unit_of_measurement: "%"
 #
 - platform: mqtt
   name: axpert_heatsinktemp
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.temp }}'
   unit_of_measurement: "°C"
 #
 - platform: mqtt
   name: axpert_pva
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.pvA }}'
   unit_of_measurement: "A"
 #
 - platform: mqtt
   name: axpert_pvv
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.pvV }}'
   unit_of_measurement: "V"
 #
 - platform: mqtt
   name: axpert_pvw
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.pvW }}'
   unit_of_measurement: "W"
 #
 - platform: mqtt
   name: axpert_pvva
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.pvVa }}'
   unit_of_measurement: "VA"
 #
 - platform: mqtt
   name: axpert_sccbattv
-  state_topic: "axpert/pigs"
+  state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.sccBattV }}'
   unit_of_measurement: "V"
 #
@@ -327,14 +312,12 @@
   unit_of_measurement: "hPa"
 #
 #########################################
-- platform: cert_expiry
-  name: ssl_local
-  host: !secret home_fqdn
-  port: 8443
+#- platform: cert_expiry
+#  host: !secret home_fqdn
+#  port: 8443
 #
-- platform: cert_expiry
-  name: ssl_work
-  host: !secret work_fqdn
+#- platform: cert_expiry
+#  host: !secret work_fqdn
 #########################################
 - platform: otp
   name: otp_bitstamp

@@ -11,6 +11,10 @@ timer_poolpump_enabled:
   name: "Pool Timer Enabled"
   icon: mdi:timer
 #
+pool_override:
+  name: "Pool Override"
+  initial: off
+#
 notification_telegram:
   name: "Telegram Notifications"
   icon: mdi:telegram
@@ -47,28 +51,9 @@ bedtime_mode:
   icon: mdi:hotel
   initial: off
 #
-showgroup_inverter:
-  name: "Show Inverter Group"
-  icon: mdi:calendar-check
-  initial: off
-#
-showgroup_espnodetasks:
-  name: "Show ESP Node Tasks"
-  icon: mdi:chip
-  initial: off
-#
-showgroup_nodefirmware:
-  name: "Show Node Weblinks Group"
-  icon: mdi:chip
-  initial: off
-#
 force_someone_home:
   name: "Force someone home"
   icon: mdi:home-account
-  initial: off
-#
-pool_override:
-  name: "Pool Override"
   initial: off
 #
 alarm_mode_stay:
