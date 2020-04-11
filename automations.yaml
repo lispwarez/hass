@@ -28,7 +28,7 @@
     entity_id: input_boolean.pool_override
 ################################################
 #  {% set ignore = ['light.house_lights', 'light.outside'] %}
-#  {{ (states.light|list + states.switch|list) | rejectattr('state','eq','on') | map(attribute='entity_id') | reject('in',ignore) | join(', ') }}
+#  {{ (states.light|list + states.switch|list + states.media_player|list) | rejectattr('state','eq','off') | map(attribute='entity_id') | reject('in',ignore) | join(', ') }}
 #
 - alias: "Internet IP Changed"
   initial_state: true
@@ -246,7 +246,7 @@
     service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "{{ trigger.from_state.attributes.friendly_name }} has gone offline after {{ trigger.from_state.state }} minutes"
+      message: "{{ trigger.from_state.attributes.friendly_name }} has gone offline after {{ trigger.from_state.state_with_unit }}"
 #
 - alias: "device tracker reset"
   initial_state: true
@@ -276,7 +276,7 @@
     service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "{{ trigger.from_state.attributes.friendly_name }} back online. Uptime: {{ trigger.to_state.state }} minutes"
+      message: "{{ trigger.from_state.attributes.friendly_name }} back online. Uptime: {{ trigger.to_state.state_with_unit }}"
 #
 #########################################################################################################
 ################### Inverter / UPS Stuff ######################
@@ -352,7 +352,7 @@
   - condition: template
     value_template: >-
       {{ is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_output_source', 'Grid') and 
-      (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 and 
+      (as_timestamp(now()) - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 and 
       (not (state_attr('sun.sun', 'elevation') | int < 28 and is_state_attr('sun.sun', 'rising', true)) or states('sensor.axpert_outw') | int < states('sensor.axpert_pvva') | int * 0.8) and 
       not (state_attr('sun.sun', 'elevation') | int < 14 and is_state_attr('sun.sun', 'rising', false)) and
       states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1800 }}
@@ -545,7 +545,7 @@
       {{ is_state('input_boolean.timer_poolpump_enabled', 'on') and is_state('switch.pool_pump', 'off') and 
       is_state('binary_sensor.axpert_output_from_solar', 'on') and states('sensor.axpert_outw') | int < 800 and 
       states('sensor.poolpump_duration_today') | int < states('input_number.poolpump_max_duration') | int and 
-      (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed)) > 240 and 
+      (as_timestamp(now()) - as_timestamp(states.switch.pool_pump.last_changed)) > 240 and 
       states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and 
       not (state_attr('sun.sun', 'elevation') | int < 30 and is_state_attr('sun.sun', 'rising', false)) }}
   action:
@@ -830,7 +830,7 @@
     to: "on"
   condition:
   - condition: template
-    value_template: "{{ is_state('input_boolean.notification_linecrossing_driveway', 'on') and is_state('binary_sensor.alarm_status', 'on') }}"
+    value_template: "{{ is_state('input_boolean.notification_linecrossing_driveway', 'on') }}"
   action:
   - service: telegram_bot.send_photo
     data:

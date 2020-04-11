@@ -18,6 +18,7 @@
     entities:
     - sensor.date
     - sensor.time
+    - sensor.hacs
     - sensor.uptime
     - sensor.otp_bitstamp
     - sensor.otp_nicehash
@@ -52,6 +53,7 @@
     - sensor.speedtest_download
     - sensor.speedtest_upload
     - sensor.speedtest_ping
+    - sensor.myip
     - sensor.axpert_inv
     - sensor.axpert_source
     - sensor.axpert_heatsinktemp
@@ -65,13 +67,8 @@
     - sensor.ups_nominal_output_power
     - sensor.ups_nominal_input_voltage
     ###
-    - sensor.desktop_chrome
-    - sensor.mobile_app
     
     - input_boolean.bedtime_mode
-    - input_boolean.showgroup_inverter
-    - input_boolean.showgroup_espnodetasks
-    - input_boolean.showgroup_nodefirmware
     - input_boolean.force_someone_home
     - input_boolean.alarm_mode_stay
     
@@ -101,6 +98,8 @@
     - binary_sensor.garden_line_crossing
     - binary_sensor.telegram_notifications
     - binary_sensor.doors_open_when_armed
+    - binary_sensor.updater
+    - binary_sensor.workday_sensor
 
     - device_tracker.pc_raspi
     - device_tracker.pc_kodi
@@ -117,5 +116,3 @@
     - light.light_3_7
     - light.light_3_8
     ###
-    - light.desktop_chrome
-    - light.mobile_app

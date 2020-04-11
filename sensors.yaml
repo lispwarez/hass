@@ -9,6 +9,10 @@
 #
 - platform: dnsip
 #
+- platform: feedparser
+  name: "Torrentday BluRay"
+  feed_url: !secret torrentday_rss
+#
 #- platform: statistics
 #  name: stats_output
 #  entity_id: sensor.axpert_outw
@@ -22,6 +26,8 @@
 #  sampling_size: 300
 #  max_age:
 #    minutes: 60
+#
+#########################################
 #
 - platform: history_stats
   name: poolpump_duration
@@ -71,11 +77,6 @@
         Disarmed
         {%- endif -%}
 #########################################
-- platform: feedparser
-  name: "Torrentday BluRay"
-  feed_url: !secret torrentday_rss
-#########################################
-#
 - platform: mqtt
   name: axpert_output_source
   state_topic: "axpert/info/piri"
@@ -311,13 +312,6 @@
   value_template: '{{ value_json.p }}'
   unit_of_measurement: "hPa"
 #
-#########################################
-#- platform: cert_expiry
-#  host: !secret home_fqdn
-#  port: 8443
-#
-#- platform: cert_expiry
-#  host: !secret work_fqdn
 #########################################
 - platform: otp
   name: otp_bitstamp

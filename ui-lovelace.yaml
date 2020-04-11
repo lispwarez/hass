@@ -4,60 +4,51 @@ custom_header:
 name: Where I lay my head is home
 views:
   - cards:
-      - cards:
-          - entities:
-              - entity: binary_sensor.alarm_status
-                name: Alarm
-              - entity: binary_sensor.doors_open_when_armed
-                name: Door Alert
-              - entity: binary_sensor.power_warning
-                name: Power Alert
-              - entity: sensor.house_temperature
-                name: Temp
-              - entity: input_boolean.bedtime_mode
-                name: Bedtime
-                style: |
-                  :host {
-                    --paper-item-icon-color: {% if is_state('input_boolean.bedtime_mode', 'on') %} var(--paper-item-icon-active-color) {% endif %}
-                  }
-                tap_action:
-                  action: toggle
-            show_name: true
-            show_state: true
-            type: glance
-          - animation: 'off'
-            entity: sensor.axpert_pvw
+      - entities:
+          - entity: binary_sensor.alarm_status
+            name: Alarm
+          - entity: binary_sensor.doors_open_when_armed
+            name: Door Alert
+          - entity: binary_sensor.power_warning
+            name: Power Alert
+          - entity: sensor.house_temperature
+            name: Temp
+          - entity: input_boolean.bedtime_mode
+            name: Bedtime
+            style: >
+              :host { --paper-item-icon-color: {% if
+              is_state('input_boolean.bedtime_mode', 'on') %}
+              var(--paper-item-icon-active-color) {% endif %} }
+            tap_action:
+              action: toggle
+        show_name: true
+        show_state: true
+        type: glance
+      - entities:
+          - entity: sensor.axpert_pvw
+            entity_row: true
             max: 2000
-            title_position: inside
+            positions:
+              icon: 'off'
+              indicator: 'off'
             type: 'custom:bar-card'
-            style: |-
-              bar-card-container {
-               padding-bottom: 8px;
-               padding-top: 8px;
-              }
-          - animation: 'off'
-            entity: sensor.axpert_outw
+          - entity: sensor.axpert_outw
+            entity_row: true
             max: 5000
-            title_position: inside
+            positions:
+              icon: 'off'
+              indicator: 'off'
             type: 'custom:bar-card'
-            style: |-
-              bar-card-container {
-               padding-bottom: 8px;
-               padding-top: 8px;
-              }
-          - animation: 'off'
-            columns: 2
-            entities:
+          - entities:
               - sensor.axpert_charge_w
               - sensor.axpert_discharge_w
-            max: 1000
-            title_position: inside
+            entity_row: true
+            max: 2000
+            positions:
+              icon: 'off'
+              indicator: 'off'
             type: 'custom:bar-card'
-            style: |-
-              bar-card-container {
-               padding-top: 8px;
-              }
-        type: vertical-stack
+        type: entities
       - card:
           show_state: false
           type: glance

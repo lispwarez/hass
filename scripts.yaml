@@ -169,7 +169,7 @@ paradox_status_disarm:
 paradox_set_alarm_mode:
   sequence:
   - condition: template
-    value_template: "{{ as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.alarm_status.last_changed) < 6 }}"
+    value_template: "{{ as_timestamp(now()) - as_timestamp(states.binary_sensor.alarm_status.last_changed) < 6 }}"
   - service: input_boolean.turn_on
     entity_id: input_boolean.alarm_mode_stay
 #
