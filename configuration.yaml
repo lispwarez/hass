@@ -20,6 +20,8 @@ http:
   ssl_certificate: !secret ssl_cert
   ssl_key: !secret ssl_key
 #
+logger:
+  default: warning
 #########################################################################
 # default_config
 automation: !include automations.yaml
@@ -78,11 +80,17 @@ weather:
 - platform: openweathermap
   api_key: !secret openweathermap_api_key
 #
+proximity:
+  lisp_home:
+    devices:
+    - device_tracker.lisp_gps
+    tolerance: 50
+    unit_of_measurement: m
 #########################################################################
 zone: !include zones.yaml
 alert: !include alert.yaml
 light: !include lights.yaml
-#group: !include groups.yaml
+group: !include groups.yaml
 scene: !include scenes.yaml
 sensor: !include sensors.yaml
 camera: !include cameras.yaml

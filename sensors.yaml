@@ -13,20 +13,6 @@
   name: "Torrentday BluRay"
   feed_url: !secret torrentday_rss
 #
-#- platform: statistics
-#  name: stats_output
-#  entity_id: sensor.axpert_outw
-#  sampling_size: 200
-#  max_age:
-#    minutes: 60
-#
-#- platform: statistics
-#  name: stats_solar
-#  entity_id: sensor.axpert_pvw
-#  sampling_size: 300
-#  max_age:
-#    minutes: 60
-#
 #########################################
 #
 - platform: history_stats
@@ -77,6 +63,22 @@
         Disarmed
         {%- endif -%}
 #########################################
+- platform: sql
+  db_url: !secret mysql_db_url
+  queries:
+  - name: history_outw
+    query: "SELECT * FROM power_history WHERE entity_id='sensor.axpert_outw' ORDER BY period DESC LIMIT 1"
+    column: 'reading'
+    unit_of_measurement: "W"
+  - name: history_pvw
+    query: "SELECT * FROM power_history WHERE entity_id='sensor.axpert_pvw' ORDER BY period DESC LIMIT 1"
+    column: 'reading'
+    unit_of_measurement: "W"
+  - name: database_size
+    query: "SELECT round(sum(data_length + index_length) / 1024 / 1024, 2) AS disk_size FROM information_schema.tables WHERE table_schema='homeassistant'"
+    column: 'disk_size'
+    unit_of_measurement: "MB"
+#########################################
 - platform: mqtt
   name: axpert_output_source
   state_topic: "axpert/info/piri"
@@ -104,6 +106,7 @@
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.outW }}'
   unit_of_measurement: "W"
+  device_class: power
   expire_after: 20
 #
 - platform: mqtt
@@ -135,12 +138,14 @@
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.battP }}'
   unit_of_measurement: "%"
+  device_class: battery
 #
 - platform: mqtt
   name: axpert_heatsinktemp
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.temp }}'
   unit_of_measurement: "°C"
+  device_class: temperature
 #
 - platform: mqtt
   name: axpert_pva
@@ -159,6 +164,7 @@
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.pvW }}'
   unit_of_measurement: "W"
+  device_class: power
 #
 - platform: mqtt
   name: axpert_pvva

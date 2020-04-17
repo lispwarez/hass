@@ -47,11 +47,15 @@
 - alias: speedtest_results
   initial_state: true
   trigger:
-    platform: state
-    entity_id: sensor.speedtest_download
+    platform: numeric_state
+    entity_id: 
+    - sensor.speedtest_download
+    - sensor.speedtest_upload
+    below: 48
   condition:
-  - condition: template
-    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and states('sensor.speedtest_download') | int < 48 }}"
+    condition: state
+    entity_id: binary_sensor.telegram_notifications
+    state: "on"
   action:
     service: telegram_bot.send_message
     data_template:
@@ -218,7 +222,7 @@
       title: "Device Tracker Found New Device"
       message: "Hostname: {{trigger.event.data.host_name}} \n Entity: {{trigger.event.data.entity_id}} \n MAC: {{ trigger.event.data.mac }}"
 #
-- alias: "device tracker offline"
+- alias: "Node tracker offline"
   initial_state: true
   trigger:
     platform: state
@@ -246,9 +250,9 @@
     service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "{{ trigger.from_state.attributes.friendly_name }} has gone offline after {{ trigger.from_state.state_with_unit }}"
+      message: "{{ trigger.from_state.attributes.friendly_name }} has gone offline after {{ trigger.from_state.state }} minutes"
 #
-- alias: "device tracker reset"
+- alias: "Node tracker reset"
   initial_state: true
   trigger:
     platform: state
@@ -276,8 +280,23 @@
     service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
-      message: "{{ trigger.from_state.attributes.friendly_name }} back online. Uptime: {{ trigger.to_state.state_with_unit }}"
+      message: "{{ trigger.from_state.attributes.friendly_name }} back online. Uptime: {{ trigger.to_state.state }} minutes"
 #
+################### Presence Detection ##################
+- alias: "Presence Left Home"
+  trigger:
+  - platform: numeric_state
+    entity_id: proximity.lisp_home
+    above: 200
+  condition:
+  - condition: state
+    entity_id: binary_sensor.telegram_notifications
+    state: "on"
+  action:
+    service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "You seem to have left home. You are {{ trigger.to_state.state }} meters away now"
 #########################################################################################################
 ################### Inverter / UPS Stuff ######################
 #
@@ -296,6 +315,17 @@
     data:
       target: !secret telegram_userid_1
       message: "No data detected from Inverter"
+#
+- alias: "Axpert Status"
+  initial_state: true
+  trigger:
+    platform: state
+    entity_id: binary_sensor.axpert_status
+  action:
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "Inverter {{ 'online' if is_state('binary_sensor.axpert_status','on') else 'offine' }}"
 #
 - alias: "Solar Panel fuse blown"
   initial_state: true
@@ -574,7 +604,7 @@
   initial_state: true
   trigger:
   - platform: template
-    value_template: "{{ is_state('binary_sensor.axpert_output_from_grid', 'on') or is_state('binary_sensor.axpert_has_solar', 'off') }}"
+    value_template: "{{ is_state('binary_sensor.axpert_output_from_grid', 'on') or is_state('binary_sensor.axpert_has_solar', 'off') or is_state('sensor.axpert_pvw', '0') }}"
   condition:
   - condition: template
     value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
@@ -1083,6 +1113,7 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.paradox_zone_01
+    to: "on"
   condition:
   - condition: template
     value_template: "{{ is_state('input_boolean.bedtime_mode', 'off') and is_state('light.bedroom', 'off') }}"
@@ -1114,6 +1145,7 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.paradox_zone_16
+    to: "on"
   condition:
   - condition: template
     value_template: "{{ is_state('light.garden', 'off') and is_state('binary_sensor.alarm_status', 'on') }}"

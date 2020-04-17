@@ -3,6 +3,7 @@
 !*.md
 
 cloud.yaml
+intent_script.yaml
 known_devices.yaml
 secrets.yaml
 zones.yaml

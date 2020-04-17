@@ -52,6 +52,12 @@
 ################################################################################
 #
 - platform: mqtt
+  name: axpert_status
+  state_topic: "axpert/info/status"
+  payload_on: "online"
+  payload_off: "offline"
+#
+- platform: mqtt
   name: axpert_charging
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.charging }}'
