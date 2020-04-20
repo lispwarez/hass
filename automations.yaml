@@ -7,8 +7,6 @@
   action:
   - service: script.request_hardware_status
   - service: script.axpert_query_piri
-  - service: script.axpert_set_defaults
-  - service: shell_command.restart_axpert
   - service: frontend.set_theme
     data:
       name: midnight2
@@ -37,7 +35,7 @@
     entity_id: sensor.myip
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and not is_state('sensor.myip', 'unknown') and not is_state('sensor.myip', 'unavailable') }}"
+    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and states('sensor.myip') not in ['unknown','unavailable'] }}"
   action:
   - service: telegram_bot.send_message
     data_template:
@@ -300,6 +298,40 @@
 #########################################################################################################
 ################### Inverter / UPS Stuff ######################
 #
+- alias: "Inverter Changeover Weather Off"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('weather.openweathermap') in ['cloudy'] }}"
+  condition:
+  - condition: state
+    entity_id: binary_sensor.axpert_has_solar
+    state: "on"
+  action:
+  - service: automation.turn_off
+    entity_id: automation.axpert_change_to_solar
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "Inverter Changeover Disabled because it is {{ states('weather.openweathermap') }}"
+#
+- alias: "Inverter Changeover Weather On"
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('weather.openweathermap') in ['sunny'] }}"
+  condition:
+  - condition: state
+    entity_id: binary_sensor.axpert_has_solar
+    state: "off"
+  action:
+  - service: automation.turn_on
+    entity_id: automation.axpert_change_to_solar
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "Inverter Changeover Enabled because it is {{ states('weather.openweathermap') }}"
+#
 - alias: "Axpert-Pi not updating"
   initial_state: true
   trigger:
@@ -311,21 +343,11 @@
     entity_id: binary_sensor.telegram_notifications
     state: "on"
   action:
+  - service: script.axpert_set_defaults
   - service: telegram_bot.send_message
     data:
       target: !secret telegram_userid_1
       message: "No data detected from Inverter"
-#
-- alias: "Axpert Status"
-  initial_state: true
-  trigger:
-    platform: state
-    entity_id: binary_sensor.axpert_status
-  action:
-  - service: telegram_bot.send_message
-    data_template:
-      target: !secret telegram_userid_1
-      message: "Inverter {{ 'online' if is_state('binary_sensor.axpert_status','on') else 'offine' }}"
 #
 - alias: "Solar Panel fuse blown"
   initial_state: true
@@ -546,6 +568,16 @@
       target: !secret telegram_userid_1
       message: "*Bad power from grid* \nCurrent Voltage: {{ states.sensor.axpert_inv.state_with_unit }} \nSolar Power: {{ states.sensor.axpert_pvw.state_with_unit }} \nCurrent Load: {{ states.sensor.axpert_outw.state_with_unit }}"
 #
+- alias: "Prepaid meter reading"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.power_reading
+  action:
+    service: shell_command.power_reading
+    data_template: 
+      reading: "{{ states('sensor.power_reading') }}"
+    
 #########################################################################################################
 ################### Pool Stuff ######################
 #
@@ -563,6 +595,19 @@
     data:
       target: !secret telegram_userid_1
       message: "Pool pump not enabled today?"
+#
+- alias: "Pool pump turned off"
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.pool_pump
+    to: "off"
+  action:
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_userid_1
+      message: "Pool pump was running for {{ relative_time(trigger.from_state.last_updated) }}"
+      disable_notification: true
 #
 - alias: "Pool pump ON for conditions"
   initial_state: true

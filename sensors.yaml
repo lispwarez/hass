@@ -265,6 +265,12 @@
 #
 #########################################
 - platform: mqtt
+  name: power_reading
+  state_topic: "ha/e/power"
+  unit_of_measurement: "Wh"
+#
+#########################################
+- platform: mqtt
   name: house_temperature
   state_topic: "tele/blah/SENSOR"
   value_template: '{{ value_json.BME280.Temperature }}'

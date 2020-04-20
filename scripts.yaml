@@ -177,7 +177,7 @@ paradox_set_alarm_mode:
 axpert_set_defaults:
   sequence: 
   - service: mqtt.publish
-    data: { topic: "axpert/info/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
+    data: { topic: "axpert/info/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
 #
 axpert_change_source_grid:
   sequence: { service: mqtt.publish, data: { topic: "axpert/comm", payload: "POP00" } }

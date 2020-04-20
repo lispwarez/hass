@@ -54,6 +54,7 @@
     - sensor.speedtest_upload
     - sensor.speedtest_ping
     - sensor.myip
+    - sensor.power_reading
     - sensor.axpert_inv
     - sensor.axpert_source
     - sensor.axpert_heatsinktemp
