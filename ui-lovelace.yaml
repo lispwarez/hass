@@ -4,130 +4,138 @@ custom_header:
 name: Where I lay my head is home
 views:
   - cards:
-      - entities:
-          - entity: binary_sensor.alarm_status
-            name: Alarm
-          - entity: binary_sensor.doors_open_when_armed
-            name: Door Alert
-          - entity: binary_sensor.power_warning
-            name: Power Alert
-          - entity: sensor.house_temperature
-            name: Temp
-          - entity: input_boolean.bedtime_mode
-            name: Bedtime
-            style: >
-              :host { --paper-item-icon-color: {% if
-              is_state('input_boolean.bedtime_mode', 'on') %}
-              var(--paper-item-icon-active-color) {% endif %} }
-            tap_action:
-              action: toggle
-        show_name: true
-        show_state: true
-        type: glance
-      - entities:
-          - entity: sensor.axpert_pvw
-            entity_row: true
-            max: 2000
-            positions:
-              icon: 'off'
-              indicator: 'off'
-            type: 'custom:bar-card'
-          - entity: sensor.axpert_outw
-            entity_row: true
-            max: 5000
-            positions:
-              icon: 'off'
-              indicator: 'off'
-            type: 'custom:bar-card'
+      - cards:
           - entities:
-              - sensor.axpert_charge_w
-              - sensor.axpert_discharge_w
-            entity_row: true
-            max: 2000
-            positions:
-              icon: 'off'
-              indicator: 'off'
-            type: 'custom:bar-card'
-        type: entities
-      - card:
-          show_state: false
-          type: glance
-        entities:
-          - entity: light.front_door
-            tap_action:
-              action: toggle
-          - entity: light.entrance
-            tap_action:
-              action: toggle
-          - entity: light.garage
-            tap_action:
-              action: toggle
-          - entity: light.lounge
-            tap_action:
-              action: toggle
-          - entity: light.dining_room
-            name: Diningroom
-            tap_action:
-              action: toggle
-          - entity: light.kitchen
-            tap_action:
-              action: toggle
-          - entity: light.kitchen_downlights
-            name: Downlights
-            tap_action:
-              action: toggle
-          - entity: light.scullary
-            tap_action:
-              action: toggle
-          - entity: light.passage
-            tap_action:
-              action: toggle
-          - entity: light.study
-            tap_action:
-              action: toggle
-          - entity: light.bedroom
-            tap_action:
-              action: toggle
-          - entity: light.bed_lamp
-            tap_action:
-              action: toggle
-          - entity: light.en_suite
-            tap_action:
-              action: toggle
-          - entity: light.spare_room
-            tap_action:
-              action: toggle
-          - entity: light.bathroom
-            tap_action:
-              action: toggle
-          - entity: light.garden
-            tap_action:
-              action: toggle
-          - entity: light.patio
-            tap_action:
-              action: toggle
-          - entity: light.pool
-            tap_action:
-              action: toggle
-          - entity: light.driveway
-            tap_action:
-              action: toggle
-          - entity: light.side_ally
-            tap_action:
-              action: toggle
-          - entity: light.back_door
-            tap_action:
-              action: toggle
-          - entity: switch.pool_pump
-            tap_action:
-              action: toggle
-          - entity: switch.geyser
-            tap_action:
-              action: toggle
-        show_empty: false
-        state_filter:
-          - 'on'
-        type: entity-filter
+              - entity: binary_sensor.alarm_status
+                name: Alarm
+              - entity: binary_sensor.doors_open_when_armed
+                name: Door Alert
+              - entity: binary_sensor.power_warning
+                name: Power Alert
+              - entity: binary_sensor.axpert_status
+                name: Inverter
+              - entity: input_boolean.bedtime_mode
+                name: Bedtime
+                style: >
+                  :host { --paper-item-icon-color: {% if
+                  is_state('input_boolean.bedtime_mode', 'on') %}
+                  var(--paper-item-icon-active-color) {% endif %} }
+                tap_action:
+                  action: toggle
+            show_name: true
+            show_state: false
+            type: glance
+          - entities:
+              - entity: sensor.axpert_pvw
+                entity_row: true
+                max: 2000
+                positions:
+                  icon: 'off'
+                  indicator: 'off'
+                type: 'custom:bar-card'
+              - entity: sensor.axpert_outw
+                entity_row: true
+                max: 5000
+                positions:
+                  icon: 'off'
+                  indicator: 'off'
+                type: 'custom:bar-card'
+              - entity: sensor.axpert_charge_w
+                entity_row: true
+                max: 2000
+                positions:
+                  icon: 'off'
+                  indicator: 'off'
+                type: 'custom:bar-card'
+              - color: var(--accent-color)
+                entity: sensor.axpert_discharge_w
+                entity_row: true
+                max: 2000
+                positions:
+                  icon: 'off'
+                  indicator: 'off'
+                type: 'custom:bar-card'
+            type: entities
+          - card:
+              show_state: false
+              type: glance
+            entities:
+              - entity: light.front_door
+                tap_action:
+                  action: toggle
+              - entity: light.entrance
+                tap_action:
+                  action: toggle
+              - entity: light.garage
+                tap_action:
+                  action: toggle
+              - entity: light.lounge
+                tap_action:
+                  action: toggle
+              - entity: light.dining_room
+                name: Diningroom
+                tap_action:
+                  action: toggle
+              - entity: light.kitchen
+                tap_action:
+                  action: toggle
+              - entity: light.kitchen_downlights
+                name: Downlights
+                tap_action:
+                  action: toggle
+              - entity: light.scullary
+                tap_action:
+                  action: toggle
+              - entity: light.passage
+                tap_action:
+                  action: toggle
+              - entity: light.study
+                tap_action:
+                  action: toggle
+              - entity: light.bedroom
+                tap_action:
+                  action: toggle
+              - entity: light.bed_lamp
+                tap_action:
+                  action: toggle
+              - entity: light.en_suite
+                tap_action:
+                  action: toggle
+              - entity: light.spare_room
+                tap_action:
+                  action: toggle
+              - entity: light.bathroom
+                tap_action:
+                  action: toggle
+              - entity: light.garden
+                tap_action:
+                  action: toggle
+              - entity: light.patio
+                tap_action:
+                  action: toggle
+              - entity: light.pool
+                tap_action:
+                  action: toggle
+              - entity: light.driveway
+                tap_action:
+                  action: toggle
+              - entity: light.side_ally
+                tap_action:
+                  action: toggle
+              - entity: light.back_door
+                tap_action:
+                  action: toggle
+              - entity: switch.pool_pump
+                tap_action:
+                  action: toggle
+              - entity: switch.geyser
+                tap_action:
+                  action: toggle
+            show_empty: false
+            state_filter:
+              - 'on'
+            type: entity-filter
+        type: vertical-stack
     icon: 'mdi:home-assistant'
     id: home
     panel: false
@@ -474,7 +482,6 @@ views:
           - entity: device_tracker.pc_nas_lan2
         show_header_toggle: false
         state_filter:
-          - Frontosa
           - home
         title: Device Status
         type: entity-filter
@@ -506,6 +513,9 @@ views:
         show_empty: false
         type: 'custom:auto-entities'
       - entities:
+          - entity: sensor.database_size
+            icon: 'mdi:database'
+            name: Database Disk Usage
           - entities:
               - sensor.node_up_sw01
               - sensor.node_up_sw02
