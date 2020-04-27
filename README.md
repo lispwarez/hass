@@ -1,21 +1,16 @@
 # @lispwarez Home-Assistant config
 
-Custom components all available via HACS
+Custom components all available via HACS  
 
-auto-entites
-
-Bar Card
-
-card-mod
-
-Custom Header
-
-fold-entity-row
-
-Mini Media Player
-
+auto-entites\
+Bar Card\
+card-mod\
+Custom Header\
+fold-entity-row\
+Mini Media Player\
 Stack in Card
 
+All data from my inverter is read via a python script available [here](https://github.com/lispwarez/axpert)
 
 
 Now for some screenshots
