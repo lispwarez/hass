@@ -1,16 +1,4 @@
 #
-timer_geyser_enabled:
-  name: "Geyser Timer Enabled"
-  icon: mdi:timer
-#
-timer_geyser_workdays:
-  name: "Workdays only"
-  icon: mdi:calendar-range
-#
-timer_poolpump_enabled:
-  name: "Pool Timer Enabled"
-  icon: mdi:timer
-#
 pool_override:
   name: "Pool Override"
   initial: off
@@ -27,6 +15,14 @@ notification_linecrossing_garden:
   name: "Line Crossing Garden"
   icon: mdi:telegram
 #
+timer_geyser_workdays:
+  name: "Workdays only"
+  icon: mdi:calendar-range
+#
+enable_wakeup_workdays:
+  name: Workdays Only
+  icon: mdi:calendar-range
+#
 enable_wakeup_light:
   name: "Turn on Lights"
   icon: mdi:timer
@@ -38,10 +34,7 @@ enable_wakeup_radio:
 garage_auto_opener:
   name: "Disarm Alarm then Open Garage"
   icon: mdi:garage-open
-#
-enable_auto_arm_alarm:
-  name: "Auto Arm Alarm"
-  icon: mdi:shield-home
+  initial: off
 #
 enable_tv_mode:
   name: TV mode
@@ -51,7 +44,7 @@ bedtime_mode:
   icon: mdi:hotel
   initial: off
 #
-force_someone_home:
+someone_home_forced:
   name: "Force someone home"
   icon: mdi:home-account
   initial: off

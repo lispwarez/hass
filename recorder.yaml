@@ -1,5 +1,5 @@
   db_url: !secret mysql_db_url
-  purge_keep_days: 14
+  purge_keep_days: 360
   purge_interval: 1
   exclude:
     domains:
@@ -10,22 +10,39 @@
     - script
     - camera
     - weblink
+    - proximity
     - automation
     - media_player
-    - input_number
     - input_select
+    - input_number
+    - input_boolean
     - input_datetime
     entities:
+# - {{ states.device_tracker | list | map(attribute='entity_id') | join('\n- ') }}
+
+    - sensor.axpert_charge_source
+    - sensor.axpert_heatsinktemp
+    - sensor.axpert_inv
+    - sensor.axpert_output_source
+    - sensor.axpert_sccbattv
+    - sensor.axpert_source
+    - sensor.database_size
     - sensor.date
-    - sensor.time
+    - sensor.disk_use_percent_home
+    - sensor.garage_humidity
+    - sensor.garage_pressure
+    - sensor.geyser_duration_now
     - sensor.hacs
-    - sensor.uptime
-    - sensor.otp_bitstamp
-    - sensor.otp_nicehash
-    - sensor.otp_luno
-    - sensor.otp_altcointrader
-    - sensor.otp_discord
-    - sensor.otp_coinbase
+    - sensor.house_humidity
+    - sensor.house_pressure
+    - sensor.myip
+    - sensor.node_up_dev01
+    - sensor.node_up_dev02
+    - sensor.node_up_dev03
+    - sensor.node_up_dev04
+    - sensor.node_up_dev05
+    - sensor.node_up_dev06
+    - sensor.node_up_dev09
     - sensor.node_up_rb01
     - sensor.node_up_rb02
     - sensor.node_up_rb03
@@ -33,53 +50,36 @@
     - sensor.node_up_sw02
     - sensor.node_up_sw03
     - sensor.node_up_sw04
-    - sensor.node_up_dev01
-    - sensor.node_up_dev02
-    - sensor.node_up_dev03
-    - sensor.node_up_dev04
-    - sensor.node_up_dev05
-    - sensor.node_up_dev06
-    - sensor.node_up_dev07
-    - sensor.node_up_dev08
-    - sensor.node_up_dev09
-    - sensor.house_pressure
-    - sensor.house_humidity
-    - sensor.garage_pressure
-    - sensor.garage_humidity
-    - sensor.poolbox_pressure
+    - sensor.otp_altcointrader
+    - sensor.otp_bitstamp
+    - sensor.otp_coinbase
+    - sensor.otp_discord
+    - sensor.otp_luno
+    - sensor.otp_nicehash
     - sensor.poolbox_humidity
+    - sensor.poolbox_pressure
     - sensor.poolpump_duration
-    - sensor.poolpump_on_duration
     - sensor.speedtest_download
-    - sensor.speedtest_upload
     - sensor.speedtest_ping
-    - sensor.myip
-    - sensor.power_reading
-    - sensor.axpert_inv
-    - sensor.axpert_source
-    - sensor.axpert_heatsinktemp
-    - sensor.axpert_output_source
-    - sensor.axpert_charge_source
+    - sensor.speedtest_upload
+    - sensor.time
     - sensor.torrentday_bluray
-    - sensor.ups_input_voltage
-    - sensor.ups_output_voltage
+    - sensor.ups_battery
+    - sensor.ups_load
+    - sensor.ups_status
     - sensor.ups_time_left
     - sensor.ups_time_on_battery
-    - sensor.ups_nominal_output_power
-    - sensor.ups_nominal_input_voltage
-    ###
-    
-    - input_boolean.bedtime_mode
-    - input_boolean.force_someone_home
-    - input_boolean.alarm_mode_stay
+    - sensor.ups_transfer_count
+    - sensor.uptime
     
     - binary_sensor.alarm_status
-    - binary_sensor.axpert_charging
-    - binary_sensor.axpert_charge_ac
-    - binary_sensor.axpert_charge_scc
     - binary_sensor.axpert_output_source_is_grid
-    - binary_sensor.axpert_output_from_grid
-    - binary_sensor.axpert_output_from_solar
+    - binary_sensor.axpert_status
+    - binary_sensor.doors_open_when_armed
+    - binary_sensor.driveway_line_crossing
+    - binary_sensor.driveway_motion
+    - binary_sensor.garden_line_crossing
+    - binary_sensor.garden_motion
     - binary_sensor.paradox_output_1
     - binary_sensor.paradox_output_2
     - binary_sensor.paradox_output_3
@@ -91,23 +91,40 @@
     - binary_sensor.paradox_zone_15
     - binary_sensor.paradox_zone_16
     - binary_sensor.paradox_zone_17
-    - binary_sensor.solar_below_cutoff
-    - binary_sensor.solar_below_800
-    - binary_sensor.driveway_motion
-    - binary_sensor.driveway_line_crossing
-    - binary_sensor.garden_motion
-    - binary_sensor.garden_line_crossing
+    #- binary_sensor.solar_below_800
+    #- binary_sensor.solar_below_cutoff
     - binary_sensor.telegram_notifications
-    - binary_sensor.doors_open_when_armed
     - binary_sensor.updater
     - binary_sensor.workday_sensor
+    - binary_sensor.zones_idle
 
-    - device_tracker.pc_raspi
+    - device_tracker.android_2df998f6d0c3d620
+    - device_tracker.android_34765e9b8ae60fbb
+    - device_tracker.blah_0760
+    - device_tracker.camera_garage
+    - device_tracker.camera_inside
+    - device_tracker.chromecast
+    - device_tracker.google_home_mini
+    - device_tracker.iot_d02_167243
+    - device_tracker.iot_d03_07162e
+    - device_tracker.iot_d04_06607b
+    - device_tracker.iot_d05_18693b
+    - device_tracker.iot_d06_3a565e
+    - device_tracker.iot_rb1_da42ed
+    - device_tracker.iot_rb2_1662c9
+    - device_tracker.iot_rb3_1661c6
+    - device_tracker.iot_sw1_06d27f
+    - device_tracker.iot_sw2_d3af73
+    - device_tracker.iot_sw3_1719df
+    - device_tracker.jbl_speaker
+    - device_tracker.pc_dump
     - device_tracker.pc_kodi
+    - device_tracker.pc_nas_lan1
+    - device_tracker.pc_nas_lan2
+    - device_tracker.pi_inverter
+    - device_tracker.roof_ap
+    - device_tracker.sonoff_6123
     - device_tracker.tv_samsung
-    - device_tracker.mobile_note2
-    - device_tracker.mobile_intel_tablet
-    #- device_tracker.iot*
     
     - light.outside
     - light.house_lights
@@ -116,4 +133,3 @@
     - light.light_3_6
     - light.light_3_7
     - light.light_3_8
-    ###

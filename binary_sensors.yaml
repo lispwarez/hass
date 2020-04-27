@@ -6,29 +6,33 @@
   sensors:
     telegram_notifications:
       value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and states('sensor.uptime') | int > 1 }}"
-    human_devices:
-      value_template: "{{ is_state('device_tracker.lispwarezs7', 'home') or is_state('device_tracker.galaxy_s6', 'home') }}"
+    tracked_things:
+      value_template: "{{ is_state('person.lispwarez', 'home') }}"
     someone_home:
-      value_template: "{{ is_state('binary_sensor.human_devices', 'on') or is_state('input_boolean.force_someone_home', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
+      value_template: "{{ is_state('binary_sensor.tracked_things', 'on') or is_state('input_boolean.someone_home_forced', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
+      icon_template: "mdi:numeric-{{ states.person|selectattr('state','eq','home')|list|count }}-box-outline"
     doors_open_when_armed:
       value_template: "{{ is_state('binary_sensor.alarm_status', 'on') and (is_state('binary_sensor.door_contact_garage_double', 'on') or is_state('binary_sensor.door_contact_garage_single', 'on')) }}"
+      device_class: problem
     power_warning:
       value_template: "{{ states('sensor.axpert_inv') | int < 210 }}"
+      device_class: problem
     solar_below_800:
-      value_template: "{{ states('sensor.axpert_pvw') | int < 800 }}"
+      value_template: "{{ states('sensor.axpert_pvw') | int < 800 and is_state('binary_sensor.axpert_output_source_is_grid', 'off') }}"
       delay_on: 40
     solar_below_cutoff:
-      value_template: "{{ states('sensor.axpert_pvw') | int < states('input_number.solar_dropoff_power') | int }}"
+      value_template: "{{ states('sensor.axpert_pvw') | int < 200 and is_state('binary_sensor.axpert_output_source_is_grid', 'off') }}"
       delay_on: 50
     zones_idle:
+      entity_id: sensor.time
       value_template: >-
-        {{
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.door_contact_garage_double.last_changed)) >= 1800 and
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.door_contact_garage_single.last_changed)) >= 1800 and
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_04.last_changed)) >= 1800 and
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_15.last_changed)) >= 1800 and
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_16.last_changed)) >= 1800 and
-        (as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.binary_sensor.paradox_zone_17.last_changed)) >= 1800 }}
+        {% set nowtimestamp = now().timestamp() %} {{
+        (nowtimestamp - as_timestamp(states.binary_sensor.door_contact_garage_double.last_changed)) >= 1800 and
+        (nowtimestamp - as_timestamp(states.binary_sensor.door_contact_garage_single.last_changed)) >= 1800 and
+        (nowtimestamp - as_timestamp(states.binary_sensor.paradox_zone_04.last_changed)) >= 1800 and
+        (nowtimestamp - as_timestamp(states.binary_sensor.paradox_zone_15.last_changed)) >= 1800 and
+        (nowtimestamp - as_timestamp(states.binary_sensor.paradox_zone_16.last_changed)) >= 1800 and
+        (nowtimestamp - as_timestamp(states.binary_sensor.paradox_zone_17.last_changed)) >= 1800 }}
     axpert_output_source_is_grid:
       value_template: >-
         {{ 
@@ -36,14 +40,6 @@
           (is_state('binary_sensor.axpert_has_solar', 'off') and is_state('sensor.axpert_battdischargea', '0')) or 
           (is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_battdischargea', '0') and (states('sensor.axpert_outw') | int > (states('sensor.axpert_pvw') | int - states('sensor.axpert_charge_w') | int) + 10))
         }}
-    axpert_output_from_grid:
-      value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'on') }}"
-      delay_on: 6
-      delay_off: 6
-    axpert_output_from_solar:
-      value_template: "{{ is_state('binary_sensor.axpert_output_source_is_grid', 'off') }}"
-      delay_on: 6
-      delay_off: 6
     alarm_status:
       value_template: "{{ is_state('binary_sensor.paradox_output_3', 'on') }}"
       delay_on: 1
@@ -58,32 +54,32 @@
   payload_off: "offline"
 #
 - platform: mqtt
-  name: axpert_charging
-  state_topic: "axpert/info/pigs"
-  value_template: '{{ value_json.charging }}'
-  payload_on: "1"
-  payload_off: "0"
-#
-- platform: mqtt
-  name: axpert_charge_ac
-  state_topic: "axpert/info/pigs"
-  value_template: '{{ value_json.charge_ac }}'
-  payload_on: "1"
-  payload_off: "0"
-#
-- platform: mqtt
-  name: axpert_charge_scc
-  state_topic: "axpert/info/pigs"
-  value_template: '{{ value_json.charge_scc }}'
-  payload_on: "1"
-  payload_off: "0"
-#
-- platform: mqtt
   name: axpert_has_solar
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.on_solar }}'
   payload_on: "1"
   payload_off: "0"
+#
+#- platform: mqtt
+#  name: axpert_charging
+#  state_topic: "axpert/info/pigs"
+#  value_template: '{{ value_json.charging }}'
+#  payload_on: "1"
+#  payload_off: "0"
+#
+#- platform: mqtt
+#  name: axpert_charge_ac
+#  state_topic: "axpert/info/pigs"
+#  value_template: '{{ value_json.charge_ac }}'
+#  payload_on: "1"
+#  payload_off: "0"
+#
+#- platform: mqtt
+#  name: axpert_charge_scc
+#  state_topic: "axpert/info/pigs"
+#  value_template: '{{ value_json.charge_scc }}'
+#  payload_on: "1"
+#  payload_off: "0"
 #
 ################################################################################
 #
@@ -103,14 +99,14 @@
 #
 - platform: mqtt
   name: door_contact_garage_double
-  device_class: opening
+  device_class: garage_door
   state_topic: "ha/e/s/d02-2"
   payload_on: "1"
   payload_off: "0"
 #
 - platform: mqtt
   name: door_contact_garage_single
-  device_class: opening
+  device_class: door
   state_topic: "ha/e/s/d02-1"
   payload_on: "1"
   payload_off: "0"
@@ -146,40 +142,47 @@
   state_topic: "Paradox/Zone/Main Bedroom"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: motion
 #
 - platform: mqtt
   name: paradox_zone_04
   state_topic: "Paradox/Zone/Back Door"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: door
 #
 - platform: mqtt
   name: paradox_zone_05
   state_topic: "Paradox/Zone/Panic"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: opening
 #
 - platform: mqtt
   name: paradox_zone_14
   state_topic: "Paradox/Zone/Lounge"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: motion
 #
 - platform: mqtt
   name: paradox_zone_15
   state_topic: "Paradox/Zone/Garage"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: motion
 #
 - platform: mqtt
   name: paradox_zone_16
   state_topic: "Paradox/Zone/Front Garden"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: motion
 #
 - platform: mqtt
   name: paradox_zone_17
   state_topic: "Paradox/Zone/Back Alley"
   payload_on: "ON"
   payload_off: "OFF"
+  device_class: motion
 #

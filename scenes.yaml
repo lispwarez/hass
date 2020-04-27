@@ -1,96 +1,25 @@
 - id: asdasdasdasd
   name: Bed Time
   entities:
-    light.bathroom:
-      friendly_name: Bathroom
-      state: 'off'
-      supported_features: 0
-    light.dining_room:
-      friendly_name: Dining Room
-      state: 'off'
-      supported_features: 0
-    light.driveway:
-      friendly_name: Driveway
-      state: 'off'
-      supported_features: 0
-    light.en_suite:
-      friendly_name: En suite
-      state: 'off'
-      supported_features: 0
-    light.entrance:
-      friendly_name: Entrance
-      state: 'off'
-      supported_features: 0
-    light.front_door:
-      friendly_name: Front Door
-      state: 'on'
-      supported_features: 0
-    light.garage:
-      friendly_name: Garage
-      state: 'off'
-      supported_features: 0
-    light.garden:
-      friendly_name: Garden
-      state: 'off'
-      supported_features: 0
-    light.kitchen:
-      friendly_name: Kitchen
-      state: 'off'
-      supported_features: 0
-    light.kitchen_downlights:
-      friendly_name: Kitchen Downlights
-      state: 'off'
-      supported_features: 0
-    light.lounge:
-      friendly_name: Lounge
-      state: 'off'
-      supported_features: 0
-    light.passage:
-      friendly_name: Passage
-      state: 'off'
-      supported_features: 0
-    light.patio:
-      friendly_name: Patio
-      state: 'off'
-      supported_features: 0
-    light.pool:
-      friendly_name: Pool
-      state: 'off'
-      supported_features: 0
-    light.scullary:
-      friendly_name: Scullary
-      state: 'off'
-      supported_features: 0
-    light.side_ally:
-      friendly_name: Side Ally
-      state: 'off'
-      supported_features: 0
-    light.spare_room:
-      friendly_name: Spare Room
-      state: 'off'
-      supported_features: 0
-    light.study:
-      friendly_name: Study
-      state: 'off'
-      supported_features: 0
-    media_player.jbl_speaker:
-      friendly_name: JBL Speaker
-      state: 'off'
-      supported_features: 21389
-    media_player.kitchen_speaker:
-      friendly_name: Kitchen speaker
-      state: 'off'
-      supported_features: 21389
-    media_player.kodi_lounge:
-      friendly_name: Kodi Lounge
-      icon: mdi:kodi
-      state: 'off'
-      supported_features: 55231
-    media_player.living_room_tv:
-      friendly_name: Living Room TV
-      state: 'off'
-      supported_features: 21389
-    script.paradox_status_stay:
-      friendly_name: 'Set status: Stay'
-      last_triggered: '2020-02-03T20:46:21.891313+00:00'
-      state: 'off'
+    light.bathroom: 'off'
+    light.dining_room: 'off'
+    light.driveway: 'off'
+    light.en_suite: 'off'
+    light.entrance: 'off'
+    light.front_door: 'on'
+    light.garage: 'off'
+    light.garden: 'off'
+    light.kitchen: 'off'
+    light.kitchen_downlights: 'off'
+    light.lounge: 'off'
+    light.passage: 'off'
+    light.patio: 'off'
+    light.pool: 'off'
+    light.scullary: 'off'
+    light.side_ally: 'off'
+    light.spare_room: 'off'
+    light.study: 'off'
+    media_player.jbl_speaker: 'off'
+    media_player.kitchen_speaker: 'off'
+    media_player.kodi_lounge: 'off'
+    media_player.living_room_tv: 'off'

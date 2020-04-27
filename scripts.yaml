@@ -107,7 +107,7 @@ garage_close_and_arm_alarm:
 garage_open_after_disarm_alarm:
   sequence:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.door_contact_garage_double', 'off') and is_state('binary_sensor.alarm_status', 'on') and is_state('input_boolean.garage_auto_opener', 'on') }}"
+    value_template: "{{ is_state('binary_sensor.alarm_status', 'on') and is_state('binary_sensor.door_contact_garage_double', 'off') and is_state('input_boolean.garage_auto_opener', 'on') }}"
   - service: input_boolean.turn_off
     entity_id: input_boolean.garage_auto_opener
   - service: script.paradox_status_disarm
@@ -168,16 +168,31 @@ paradox_status_disarm:
 #
 paradox_set_alarm_mode:
   sequence:
+  - delay: '00:00:01'
   - condition: template
-    value_template: "{{ as_timestamp(now()) - as_timestamp(states.binary_sensor.alarm_status.last_changed) < 6 }}"
+    value_template: "{{ as_timestamp(now()) - as_timestamp(states.binary_sensor.paradox_output_3.last_changed) < 6 }}"
   - service: input_boolean.turn_on
     entity_id: input_boolean.alarm_mode_stay
 #
+paradox_alarm_notification:
+  sequence:
+  - service: script.light_timer_garden
+  - delay: "{{ '00:00:02' if is_state('sun.sun', 'below_horizon') else '00:00' }}"
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_channel
+      message: "*{{ message }}* \nMotion detected in these zones: {%- for item in states.binary_sensor -%}{%- if 'paradox_zone' in item.entity_id and (as_timestamp(now()) - as_timestamp(item.last_changed)) < 120 %}\n{{ item.name }}{% endif %}{%- endfor -%}"
+  - service: logbook.log
+    data_template:
+      name: "{{ message }}"
+      message: "Motion detected in these zones: {%- for item in states.binary_sensor -%}{%- if 'paradox_zone' in item.entity_id and (as_timestamp(now()) - as_timestamp(item.last_changed)) < 120 %}\n{{ item.name }}{% endif %}{%- endfor -%}"
+      entity_id: binary_sensor.paradox_output_1
+      domain: binary_sensor
 ################################################################################
 axpert_set_defaults:
   sequence: 
   - service: mqtt.publish
-    data: { topic: "axpert/info/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
+    data: { topic: "axpert/info/pigs", payload: '{"pvA": 0, "outP": 0, "sccBattV": 0, "outW": 0, "outV": 0, "pvVa": 0, "inV": 0, "inHz": 0, "count": 0, "charge_ac": 0, "battP": 0, "battAi": 0, "pvW": 0, "outHz": 0, "charge_scc": 0, "battAo": 0, "outVa": 0, "on_solar": 0, "pvV": 0, "battV": 0, "temp": 0, "charging": 0}' }
 #
 axpert_change_source_grid:
   sequence: { service: mqtt.publish, data: { topic: "axpert/comm", payload: "POP00" } }
@@ -205,7 +220,7 @@ axpert_charge_source_solar_only:
   sequence: { service: mqtt.publish, data: { topic: "axpert/comm", payload: "PCP03" } }
 #
 ################################################################################
-restart_all_nodes:
+node_restart_all:
   sequence: { service: mqtt.publish, data: { topic: "ha/c/esp/restart", payload: "all" } }
 #
 node_restart_rb01:

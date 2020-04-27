@@ -13,6 +13,13 @@
   name: "Torrentday BluRay"
   feed_url: !secret torrentday_rss
 #
+- platform: systemmonitor
+  resources:
+  - type: disk_use_percent
+    arg: /home
+  - type: memory_use
+  - type: load_1m
+
 #########################################
 #
 - platform: history_stats
@@ -35,50 +42,45 @@
       value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.geyser.last_changed) + 10) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
       unit_of_measurement: "minutes"
     axpert_charge_w:
-      value_template: "{{ (states('sensor.axpert_battchargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
+      value_template: "{{ (states('sensor.axpert_battchargea') | int * states('sensor.axpert_sccbattv') | float) | round(0) }}"
       unit_of_measurement: "W"
+      device_class: power
     axpert_discharge_w:
       value_template: "{{ (states('sensor.axpert_battdischargea') | int * states('sensor.axpert_battv') | float) | round(0) }}"
       unit_of_measurement: "W"
+      device_class: power
     axpert_source:
       value_template: >-
         {%- if is_state('binary_sensor.axpert_has_solar', 'off') and states('sensor.axpert_battdischargea') | int > 0 -%}
-        Battery
+          Battery
         {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_battdischargea') | int > 0 -%}
-        Solar + Battery
+          Solar + Battery
         {%- elif is_state('binary_sensor.axpert_output_source_is_grid', 'on') -%}
-        Grid (set {{states('sensor.axpert_output_source') }})
+          Grid (set {{states('sensor.axpert_output_source') }})
         {%- elif is_state('binary_sensor.axpert_has_solar', 'on') and states('sensor.axpert_pvw') | int  > 0 -%}
-        Solar (set {{states('sensor.axpert_output_source') }})
+          Solar (set {{states('sensor.axpert_output_source') }})
         {%- else -%}
-        Unknown
+          Unknown
         {%- endif -%}
     alarm_arm_mode:
       value_template: >-
         {%- if is_state('binary_sensor.alarm_status', 'on') and is_state('input_boolean.alarm_mode_stay', 'on') -%}
-        Stay
+          Stay
         {%- elif is_state('binary_sensor.alarm_status', 'on') -%}
-        Armed
+          Armed
         {%- else -%}
-        Disarmed
+          Disarmed
         {%- endif -%}
 #########################################
 - platform: sql
   db_url: !secret mysql_db_url
   queries:
-  - name: history_outw
-    query: "SELECT * FROM power_history WHERE entity_id='sensor.axpert_outw' ORDER BY period DESC LIMIT 1"
-    column: 'reading'
-    unit_of_measurement: "W"
-  - name: history_pvw
-    query: "SELECT * FROM power_history WHERE entity_id='sensor.axpert_pvw' ORDER BY period DESC LIMIT 1"
-    column: 'reading'
-    unit_of_measurement: "W"
   - name: database_size
     query: "SELECT round(sum(data_length + index_length) / 1024 / 1024, 2) AS disk_size FROM information_schema.tables WHERE table_schema='homeassistant'"
     column: 'disk_size'
     unit_of_measurement: "MB"
 #########################################
+#
 - platform: mqtt
   name: axpert_output_source
   state_topic: "axpert/info/piri"
@@ -165,6 +167,7 @@
   value_template: '{{ value_json.pvW }}'
   unit_of_measurement: "W"
   device_class: power
+  force_update: true
 #
 - platform: mqtt
   name: axpert_pvva
@@ -177,6 +180,55 @@
   state_topic: "axpert/info/pigs"
   value_template: '{{ value_json.sccBattV }}'
   unit_of_measurement: "V"
+#
+- platform: mqtt
+  name: axpert_power_output
+  state_topic: "axpert/info/power/outw"
+  value_template: "{{ value_json.total }}"
+  json_attributes_topic: "axpert/info/power/outw"
+  unit_of_measurement: "kWh"
+  device_class: power
+#
+- platform: mqtt
+  name: axpert_power_solar
+  state_topic: "axpert/info/power/pvw"
+  value_template: "{{ value_json.total }}"
+  json_attributes_topic: "axpert/info/power/pvw"
+  unit_of_measurement: "kWh"
+  device_class: power
+#
+#########################################
+- platform: mqtt
+  name: prepaid_power_reading
+  state_topic: "ha/e/power"
+  unit_of_measurement: "Wh"
+  device_class: power
+#
+# updated from automation mqtt publish
+- platform: mqtt
+  name: stats_poolpump_duration
+  state_topic: "ha/internal/stats_poolpump_duration"
+  unit_of_measurement: "minutes"
+#
+- platform: mqtt
+  name: stats_power_output
+  state_topic: "ha/internal/stats_power_output"
+  unit_of_measurement: "kWh"
+#
+- platform: mqtt
+  name: stats_power_solar
+  state_topic: "ha/internal/stats_power_solar"
+  unit_of_measurement: "kWh"
+#
+- platform: mqtt
+  name: stats_power_output_hourly
+  state_topic: "ha/internal/stats_power_output_hourly"
+  unit_of_measurement: "Wh"
+#
+- platform: mqtt
+  name: stats_power_solar_hourly
+  state_topic: "ha/internal/stats_power_solar_hourly"
+  unit_of_measurement: "Wh"
 #
 #########################################
 - platform: mqtt
@@ -265,64 +317,67 @@
 #
 #########################################
 - platform: mqtt
-  name: power_reading
-  state_topic: "ha/e/power"
-  unit_of_measurement: "Wh"
-#
-#########################################
-- platform: mqtt
   name: house_temperature
   state_topic: "tele/blah/SENSOR"
   value_template: '{{ value_json.BME280.Temperature }}'
   unit_of_measurement: "°C"
+  device_class: temperature
 #
 - platform: mqtt
   name: house_humidity
   state_topic: "tele/blah/SENSOR"
   value_template: '{{ value_json.BME280.Humidity }}'
   unit_of_measurement: "%"
+  device_class: humidity
 #
 - platform: mqtt
   name: house_pressure
   state_topic: "tele/blah/SENSOR"
   value_template: '{{ value_json.BME280.Pressure }}'
   unit_of_measurement: "hPa"
+  device_class: pressure
 ############################
 - platform: mqtt
   name: garage_temperature
   state_topic: "ha/s/wi/d02"
   value_template: '{{ value_json.t }}'
   unit_of_measurement: "°C"
+  device_class: temperature
 #
 - platform: mqtt
   name: garage_humidity
   state_topic: "ha/s/wi/d02"
   value_template: '{{ value_json.h }}'
   unit_of_measurement: "%"
+  device_class: humidity
 #
 - platform: mqtt
   name: garage_pressure
   state_topic: "ha/s/wi/d02"
   value_template: '{{ value_json.p }}'
   unit_of_measurement: "hPa"
+  device_class: pressure
 ############################
 - platform: mqtt
   name: poolbox_temperature
   state_topic: "ha/s/wi/d04"
   value_template: '{{ value_json.t }}'
   unit_of_measurement: "°C"
+  device_class: temperature
 #
 - platform: mqtt
   name: poolbox_humidity
   state_topic: "ha/s/wi/d04"
   value_template: '{{ value_json.h }}'
   unit_of_measurement: "%"
+  device_class: humidity
 #
 - platform: mqtt
   name: poolbox_pressure
   state_topic: "ha/s/wi/d04"
   value_template: '{{ value_json.p }}'
   unit_of_measurement: "hPa"
+  device_class: pressure
 #
 #########################################
 - platform: otp

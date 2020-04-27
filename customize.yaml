@@ -1,6 +1,3 @@
-group.default_view:
-  friendly_name: Overview
-  icon: mdi:home-assistant
 script.request_hardware_status:
   friendly_name: Refresh Status
   icon: mdi:refresh
@@ -42,92 +39,114 @@ script.axpert_charge_source_both:
 script.axpert_charge_source_solar_only:
   friendly_name: 'Charge Source: Solar Only'
   icon: mdi:import
-script.restart_all_nodes:
+script.node_restart_all:
   friendly_name: Restart all Nodes
   icon: mdi:restart
 script.node_restart_rb01:
   friendly_name: RelayBoard 1
+  icon: mdi:restart
 script.node_restart_rb02:
   friendly_name: RelayBoard 2
+  icon: mdi:restart
 script.node_restart_rb03:
   friendly_name: RelayBoard 3
+  icon: mdi:restart
 script.node_restart_sw01:
   friendly_name: Switch 1
+  icon: mdi:restart
 script.node_restart_sw02:
   friendly_name: Switch 2
+  icon: mdi:restart
 script.node_restart_sw03:
   friendly_name: Switch 3
+  icon: mdi:restart
 script.node_restart_sw04:
   friendly_name: Switch 4
+  icon: mdi:restart
 script.node_restart_dev01:
   friendly_name: House
+  icon: mdi:restart
 script.node_restart_dev02:
   friendly_name: Garage
+  icon: mdi:restart
 script.node_restart_dev03:
   friendly_name: Geyser
+  icon: mdi:restart
 script.node_restart_dev04:
   friendly_name: Poolbox
+  icon: mdi:restart
 script.node_restart_dev05:
   friendly_name: Paradox
+  icon: mdi:restart
 script.node_restart_dev06:
   friendly_name: Sonoff Basic
+  icon: mdi:restart
 script.node_restart_dev09:
   friendly_name: Test esp-01
+  icon: mdi:restart
 sensor.node_up_rb01:
   friendly_name: Relayboard 1
+  icon: mdi:calendar-clock
 sensor.node_up_rb02:
   friendly_name: Relayboard 2
+  icon: mdi:calendar-clock
 sensor.node_up_rb03:
   friendly_name: Relayboard 3
+  icon: mdi:calendar-clock
 sensor.node_up_sw01:
   friendly_name: SwitchNode 1
+  icon: mdi:calendar-clock
 sensor.node_up_sw02:
   friendly_name: SwitchNode 2
+  icon: mdi:calendar-clock
 sensor.node_up_sw03:
   friendly_name: SwitchNode 3
+  icon: mdi:calendar-clock
 sensor.node_up_sw04:
   friendly_name: SwitchNode 4
+  icon: mdi:calendar-clock
 sensor.node_up_dev01:
   friendly_name: House Node
+  icon: mdi:calendar-clock
 sensor.node_up_dev02:
   friendly_name: Garage Node
+  icon: mdi:calendar-clock
 sensor.node_up_dev03:
   friendly_name: Geyser Node
+  icon: mdi:calendar-clock
 sensor.node_up_dev04:
   friendly_name: Pool Node
+  icon: mdi:calendar-clock
 sensor.node_up_dev05:
   friendly_name: Paradox Node
+  icon: mdi:calendar-clock
 sensor.node_up_dev06:
   friendly_name: Sonoff Basic
+  icon: mdi:calendar-clock
 sensor.node_up_dev09:
   friendly_name: Test esp-01
+  icon: mdi:calendar-clock
 sensor.house_temperature:
-  device_class: temperature
   friendly_name: Lounge Temperature
 sensor.house_pressure:
   friendly_name: Lounge Pressure
   icon: mdi:gauge
 sensor.house_humidity:
-  device_class: humidity
   friendly_name: Lounge Humidity
 sensor.garage_temperature:
   friendly_name: Garage Temperature
-  device_class: temperature
 sensor.garage_pressure:
   friendly_name: Garage Pressure
   icon: mdi:gauge
 sensor.garage_humidity:
   friendly_name: Garage Humidity
-  device_class: humidity
 sensor.poolbox_temperature:
   friendly_name: Poolbox Temperature
-  device_class: temperature
 sensor.poolbox_pressure:
   friendly_name: Poolbox Pressure
   icon: mdi:gauge
 sensor.poolbox_humidity:
   friendly_name: Poolbox Humidity
-  device_class: humidity
 sensor.axpert_charging_source:
   friendly_name: Charging Source
 sensor.axpert_source:
@@ -143,7 +162,6 @@ sensor.axpert_battV:
   icon: mdi:flash-circle
 sensor.axpert_battP:
   friendly_name: Battery Level
-  device_class: battery
 sensor.axpert_charge_w:
   friendly_name: Battery Charge Power
   icon: mdi:battery-plus
@@ -162,7 +180,6 @@ sensor.axpert_pvW:
   icon: mdi:import
 sensor.axpert_heatSinkDegC:
   friendly_name: Temperature
-  device_class: temperature
 sensor.alarm_arm_mode:
   friendly_name: Alarm Status
 sensor.poolpump_duration_today:
@@ -184,32 +201,25 @@ binary_sensor.paradox_output_4:
   friendly_name: Paradox Remote Button 2
 binary_sensor.paradox_zone_01:
   friendly_name: Main Bedroom
-  device_class: motion
 binary_sensor.paradox_zone_04:
-  device_class: opening
   friendly_name: Back Door
 binary_sensor.paradox_zone_05:
   friendly_name: Panic Button
-  device_class: opening
 binary_sensor.paradox_zone_14:
   friendly_name: Lounge
-  device_class: motion
 binary_sensor.paradox_zone_15:
   friendly_name: Garage
-  device_class: motion
 binary_sensor.paradox_zone_16:
   friendly_name: Garden Beam
-  device_class: motion
 binary_sensor.paradox_zone_17:
   friendly_name: Back Alley
-  device_class: motion
 binary_sensor.someone_home:
   friendly_name: Someone home
 media_player.kodi_lounge:
   icon: mdi:kodi
-person.michael:
+person.lispwarez:
   entity_picture: /local/lispwarez.png
-device_tracker.lispwarezs7:
+device_tracker.lisp_cell:
   icon: mdi:cellphone-android
   entity_picture: /local/lispwarez.png
 device_tracker.android_34765e9b8ae60fbb:
@@ -218,3 +228,28 @@ device_tracker.android_2df998f6d0c3d620:
   friendly_name: S4 Mini
 sensor.geyser_duration_now:
   friendly_name: Geyser On Duration
+automation.geyser_on_from_set_time:
+  friendly_name: Geyser Timer Enabled
+  icon: mdi:timer
+automation.pool_pump_on_for_conditions:
+  friendly_name: Pool Pump Timer Enabled
+  icon: mdi:timer
+automation.axpert_change_to_solar:
+  friendly_name: Enable auto change to Solar
+  icon: mdi:solar-panel-large
+sensor.stats_poolpump_duration:
+  friendly_name: Daily Pool Pump Runtime
+sensor.stats_power_output:
+  friendly_name: Daily Power Usage
+sensor.stats_power_solar:
+  friendly_name: Daily Solar Generation
+sensor.stats_power_output_hourly:
+  friendly_name: Hourly Power Usage
+sensor.stats_power_solar_hourly:
+  friendly_name: Hourly Solar Generation
+automation.paradox_auto_set_alarm:
+  friendly_name: Auto Arm Alarm
+  icon: mdi:shield-home
+sensor.database_size:
+  friendly_name: Database Disk Usage
+  icon: mdi:database

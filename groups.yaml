@@ -1,11 +1,4 @@
-asd:
-- sensor.node_up_rb01
-- sensor.node_up_rb02
-- sensor.node_up_rb03
-- sensor.node_up_sw01
-- sensor.node_up_sw02
-- sensor.node_up_sw03
-- sensor.node_up_sw04
+nodes_uptime:
 - sensor.node_up_dev01
 - sensor.node_up_dev02
 - sensor.node_up_dev03
@@ -13,3 +6,10 @@ asd:
 - sensor.node_up_dev05
 - sensor.node_up_dev06
 - sensor.node_up_dev09
+- sensor.node_up_rb01
+- sensor.node_up_rb02
+- sensor.node_up_rb03
+- sensor.node_up_sw01
+- sensor.node_up_sw02
+- sensor.node_up_sw03
+- sensor.node_up_sw04

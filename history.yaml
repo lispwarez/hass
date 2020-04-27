@@ -1,6 +1,9 @@
 exclude:
   domains:
-  - input_boolean
   - device_tracker
   entities:
-  - binary_sensor.zones_idle
+  - sensor.stats_poolpump_duration
+  - sensor.stats_power_output
+  - sensor.stats_power_solar
+  - sensor.stats_power_output_hourly
+  - sensor.stats_power_solar_hourly

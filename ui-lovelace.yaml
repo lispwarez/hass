@@ -4,58 +4,54 @@ custom_header:
 name: Where I lay my head is home
 views:
   - cards:
+      - entity: sensor.alarm_arm_mode
+        icon: 'mdi:shield-home'
+        style: >
+          ha-card .info { color: 
+
+          {% if is_state('sensor.alarm_arm_mode', 'Armed') %}
+          var(--accent-color)
+
+          {% elif is_state('sensor.alarm_arm_mode', 'Stay') %} #ffcd66
+
+          {% endif %} }
+        type: entity
       - cards:
-          - entities:
-              - entity: binary_sensor.alarm_status
-                name: Alarm
-              - entity: binary_sensor.doors_open_when_armed
-                name: Door Alert
+          - columns: 4
+            entities:
               - entity: binary_sensor.power_warning
                 name: Power Alert
+                style: |
+                  :host { {% if is_state('binary_sensor.power_warning', 'on') %}
+                  --paper-item-icon-color: var(--accent-color) {% endif %} }
+              - entity: binary_sensor.doors_open_when_armed
+                name: Door Alert
+                style: >
+                  :host { {% if is_state('binary_sensor.doors_open_when_armed',
+                  'on') %}
+
+                  --paper-item-icon-color: var(--accent-color) {% endif %} }
+              - entity: binary_sensor.zones_idle
+                name: Zones
+              - entity: binary_sensor.someone_home
+                name: Home
               - entity: binary_sensor.axpert_status
                 name: Inverter
+              - entity: binary_sensor.door_contact_garage_double
+                name: Double
+              - entity: binary_sensor.door_contact_garage_single
+                name: Single
               - entity: input_boolean.bedtime_mode
                 name: Bedtime
                 style: >
-                  :host { --paper-item-icon-color: {% if
-                  is_state('input_boolean.bedtime_mode', 'on') %}
-                  var(--paper-item-icon-active-color) {% endif %} }
+                  :host { {% if is_state('input_boolean.bedtime_mode', 'on') %}
+                  --paper-item-icon-color: var(--paper-item-icon-active-color)
+                  {% endif %} }
                 tap_action:
                   action: toggle
             show_name: true
             show_state: false
             type: glance
-          - entities:
-              - entity: sensor.axpert_pvw
-                entity_row: true
-                max: 2000
-                positions:
-                  icon: 'off'
-                  indicator: 'off'
-                type: 'custom:bar-card'
-              - entity: sensor.axpert_outw
-                entity_row: true
-                max: 5000
-                positions:
-                  icon: 'off'
-                  indicator: 'off'
-                type: 'custom:bar-card'
-              - entity: sensor.axpert_charge_w
-                entity_row: true
-                max: 2000
-                positions:
-                  icon: 'off'
-                  indicator: 'off'
-                type: 'custom:bar-card'
-              - color: var(--accent-color)
-                entity: sensor.axpert_discharge_w
-                entity_row: true
-                max: 2000
-                positions:
-                  icon: 'off'
-                  indicator: 'off'
-                type: 'custom:bar-card'
-            type: entities
           - card:
               show_state: false
               type: glance
@@ -135,6 +131,34 @@ views:
             state_filter:
               - 'on'
             type: entity-filter
+          - card:
+              entity: media_player.jbl_speaker
+              type: 'custom:mini-media-player'
+            conditions:
+              - entity: media_player.jbl_speaker
+                state: playing
+            type: conditional
+          - card:
+              entity: media_player.kodi_lounge
+              type: 'custom:mini-media-player'
+            conditions:
+              - entity: media_player.kodi_lounge
+                state: playing
+            type: conditional
+          - card:
+              entity: media_player.kitchen_speaker
+              type: 'custom:mini-media-player'
+            conditions:
+              - entity: media_player.kitchen_speaker
+                state: playing
+            type: conditional
+          - card:
+              entity: media_player.living_room_tv
+              type: 'custom:mini-media-player'
+            conditions:
+              - entity: media_player.living_room_tv
+                state: playing
+            type: conditional
         type: vertical-stack
     icon: 'mdi:home-assistant'
     id: home
@@ -143,24 +167,22 @@ views:
   - badges: []
     cards:
       - cards:
-          - entities:
-              - entity: binary_sensor.alarm_status
-                name: Alarm
-              - entity: binary_sensor.someone_home
-                name: Home
-              - entity: binary_sensor.zones_idle
-                name: Zones
-              - entity: binary_sensor.door_contact_garage_double
-                name: Double
-              - entity: binary_sensor.door_contact_garage_single
-                name: Single
-            show_name: true
-            show_state: false
-            style: |
+          - entity: sensor.alarm_arm_mode
+            icon: 'mdi:shield-home'
+            style: >
+              ha-card .info { color: 
+
+              {% if is_state('sensor.alarm_arm_mode', 'Armed') %}
+              var(--accent-color)
+
+              {% elif is_state('sensor.alarm_arm_mode', 'Stay') %} #ffcd66
+
+              {% endif %} }
+
               ha-card {
                border-bottom: 1px solid var(--primary-color);
               }
-            type: glance
+            type: entity
           - cards:
               - entity: script.paradox_status_arm
                 hold_action:
@@ -187,15 +209,6 @@ views:
                   action: toggle
                 type: picture
             type: horizontal-stack
-          - entities:
-              - entity: sensor.alarm_arm_mode
-                icon: 'mdi:shield-home'
-                name: Alarm Status
-            style: |
-              ha-card {
-               border-top: 1px solid var(--primary-color);
-              }
-            type: entities
         type: 'custom:stack-in-card'
       - cards:
           - cards:
@@ -248,6 +261,7 @@ views:
           - entity: binary_sensor.zones_idle
             name: Zones Idle
             secondary_info: last-changed
+          - type: divider
           - entity: binary_sensor.door_contact_garage_double
             secondary_info: last-changed
           - entity: binary_sensor.door_contact_garage_single
@@ -260,6 +274,7 @@ views:
             secondary_info: last-changed
           - entity: binary_sensor.paradox_zone_04
             secondary_info: last-changed
+          - type: divider
           - entity: binary_sensor.paradox_zone_14
             secondary_info: last-changed
           - entity: binary_sensor.paradox_zone_01
@@ -278,6 +293,118 @@ views:
     icon: 'mdi:shield-home'
     id: sec
     title: Security & Access
+  - badges: []
+    cards:
+      - entities:
+          - entity: sensor.axpert_source
+            name: Using Power From
+            secondary_info: last-changed
+          - type: divider
+          - entity: sensor.axpert_pvw
+            entity_row: true
+            max: 2000
+            positions:
+              icon: 'off'
+              indicator: 'off'
+            type: 'custom:bar-card'
+          - entity: sensor.axpert_outw
+            entity_row: true
+            max: 5000
+            positions:
+              icon: 'off'
+              indicator: 'off'
+            type: 'custom:bar-card'
+          - entity: sensor.axpert_charge_w
+            entity_row: true
+            max: 2000
+            positions:
+              icon: 'off'
+              indicator: 'off'
+            type: 'custom:bar-card'
+          - color: var(--accent-color)
+            entity: sensor.axpert_discharge_w
+            entity_row: true
+            max: 2000
+            positions:
+              icon: 'off'
+              indicator: 'off'
+            type: 'custom:bar-card'
+          - entity: sensor.axpert_battp
+            entity_row: true
+            height: 15
+            max: 100
+            positions:
+              icon: 'off'
+              indicator: 'off'
+            severity:
+              - color: var(--accent-color)
+                from: 0
+                to: 75
+            type: 'custom:bar-card'
+          - type: divider
+          - entity: sensor.axpert_power_output
+            name: Power Used Today
+          - entity: sensor.axpert_power_solar
+            name: Power Generated Today
+          - type: divider
+          - sensor.axpert_pvv
+          - sensor.axpert_pva
+          - sensor.axpert_pvva
+          - type: divider
+          - sensor.axpert_battv
+          - sensor.axpert_battp
+        title: Inverter Status
+        type: entities
+      - entities:
+          - entity: automation.axpert_change_to_solar
+            icon: 'mdi:solar-panel-large'
+          - script.axpert_query_piri
+          - type: divider
+          - entity: script.axpert_change_source_grid
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Grid') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_change_source_solar
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Solar') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_change_source_sbu
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'SBU') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - type: divider
+          - entity: script.axpert_charge_source_grid
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Grid First') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_solar
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar First') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_both
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar + Grid') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - entity: script.axpert_charge_source_solar_only
+            style: |
+              :host {
+                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar Only') %} var(--paper-item-icon-active-color) {% endif %}
+              }
+          - type: divider
+          - entity: script.restart_axpert
+            icon: 'mdi:ssh'
+            name: Restart Axpert Service
+        show_header_toggle: false
+        title: Inverter Tasks
+        type: entities
+    icon: 'mdi:flash'
+    title: Solar Power
   - cards:
       - aspect_ratio: 0%
         camera_image: camera.inside
@@ -421,8 +548,7 @@ views:
         type: 'custom:mini-media-player'
       - entity: media_player.living_room_tv
         type: 'custom:mini-media-player'
-      - artwork: cover
-        entity: media_player.jbl_speaker
+      - entity: media_player.jbl_speaker
         type: 'custom:mini-media-player'
       - entity: media_player.kitchen_speaker
         type: 'custom:mini-media-player'
@@ -430,28 +556,6 @@ views:
     id: media
     title: Media Devices
   - cards:
-      - entities:
-          - entity: sensor.axpert_source
-            name: Using Power From
-            secondary_info: last-changed
-          - entity: sensor.axpert_charge_source
-            name: Charging Source
-            secondary_info: last-changed
-          - type: divider
-          - sensor.axpert_pvw
-          - sensor.axpert_charge_w
-          - sensor.axpert_discharge_w
-          - sensor.axpert_outw
-          - sensor.axpert_outp
-          - sensor.axpert_battv
-          - sensor.axpert_battp
-          - type: divider
-          - sensor.axpert_pvv
-          - sensor.axpert_pva
-          - sensor.axpert_pvva
-        show_header_toggle: false
-        title: Inverter Status
-        type: entities
       - entities:
           - entity: sun.sun
             secondary_info: last-changed
@@ -473,7 +577,7 @@ views:
       - entity: weather.openweathermap
         type: weather-forecast
       - entities:
-          - entity: person.michael
+          - entity: person.lispwarez
             secondary_info: last-changed
           - entity: device_tracker.pi_inverter
           - entity: device_tracker.pc_kodi
@@ -514,30 +618,27 @@ views:
         type: 'custom:auto-entities'
       - entities:
           - entity: sensor.database_size
-            icon: 'mdi:database'
-            name: Database Disk Usage
-          - entities:
-              - sensor.node_up_sw01
-              - sensor.node_up_sw02
-              - sensor.node_up_sw03
-              - sensor.node_up_sw04
-              - sensor.node_up_rb01
-              - sensor.node_up_rb02
-              - sensor.node_up_rb03
-              - sensor.node_up_dev01
-              - sensor.node_up_dev02
-              - sensor.node_up_dev03
-              - sensor.node_up_dev04
-              - sensor.node_up_dev05
-              - sensor.node_up_dev06
-              - sensor.node_up_dev09
-            head:
-              label: IoT Device Uptime
-              type: section
-            padding: 1
-            type: 'custom:fold-entity-row'
+          - card:
+              head:
+                label: IoT Device Uptime
+                type: section
+              padding: 0
+              type: 'custom:fold-entity-row'
+            filter:
+              include:
+                - group: group.nodes_uptime
+            type: 'custom:auto-entities'
         show_header_toggle: false
         type: entities
+      - card:
+          title: Disabled Automations
+          type: entities
+        filter:
+          exclude:
+            - state: 'on'
+          include:
+            - domain: automation
+        type: 'custom:auto-entities'
     icon: 'mdi:information-outline'
     id: info
     title: Information
@@ -546,17 +647,14 @@ views:
           - entity: input_boolean.notification_telegram
           - entity: input_boolean.notification_linecrossing_driveway
           - entity: input_boolean.notification_linecrossing_garden
-          - entity: binary_sensor.someone_home
-          - entity: binary_sensor.human_devices
-            name: Trackable Devices
-          - entity: input_boolean.force_someone_home
-          - entity: input_boolean.enable_auto_arm_alarm
+          - entity: input_boolean.someone_home_forced
+          - entity: automation.paradox_auto_set_alarm
           - entity: script.restart_paradox
             icon: 'mdi:ssh'
         show_header_toggle: false
         type: entities
       - entities:
-          - entity: input_boolean.timer_geyser_enabled
+          - entity: automation.geyser_on_from_set_time
           - entity: input_boolean.timer_geyser_workdays
           - entity: input_datetime.geyser_on_time
           - entity: input_number.geyser_duration
@@ -566,195 +664,129 @@ views:
         title: Geyser Timer
         type: entities
       - entities:
-          - entity: input_boolean.timer_poolpump_enabled
+          - entity: automation.pool_pump_on_for_conditions
           - entity: input_boolean.pool_override
           - entity: input_datetime.poolpump_on_time
-          - entity: input_number.poolpump_max_duration
           - entity: sensor.poolpump_duration_today
           - entity: switch.pool_pump
         show_header_toggle: false
         title: Pool Pump Timer
         type: entities
       - entities:
-          - entity: automation.axpert_change_to_solar
-            name: Enable auto change to Solar
-          - input_number.solar_dropoff_power
-          - script.axpert_query_piri
-          - type: divider
-          - entity: script.axpert_change_source_grid
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Grid') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - entity: script.axpert_change_source_solar
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Solar') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - entity: script.axpert_change_source_sbu
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'SBU') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - type: divider
-          - entity: script.axpert_charge_source_grid
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Grid First') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - entity: script.axpert_charge_source_solar
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar First') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - entity: script.axpert_charge_source_both
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar + Grid') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - entity: script.axpert_charge_source_solar_only
-            style: |
-              :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar Only') %} var(--paper-item-icon-active-color) {% endif %}
-              }
-          - type: divider
-          - entity: script.restart_axpert
-            icon: 'mdi:ssh'
-            name: Restart Axpert Service
-        show_header_toggle: false
-        title: Inverter Tasks
-        type: entities
-      - entities:
-          - entity: input_datetime.morning_wakeup_time
           - entity: input_boolean.enable_wakeup_light
           - entity: input_boolean.enable_wakeup_radio
+          - entity: input_datetime.morning_wakeup_time
+          - entity: input_boolean.enable_wakeup_workdays
         show_header_toggle: false
         title: Morning Wakeup
         type: entities
-      - cards:
+      - entities:
           - entities:
-              - entities:
-                  - icon: 'mdi:open-in-new'
-                    name: RelayBoard 1
-                    type: weblink
-                    url: 'http://192.168.25.51/'
-                  - icon: 'mdi:open-in-new'
-                    name: RelayBoard 2
-                    type: weblink
-                    url: 'http://192.168.25.52/'
-                  - icon: 'mdi:open-in-new'
-                    name: RelayBoard 3
-                    type: weblink
-                    url: 'http://192.168.25.53/'
-                  - type: section
-                  - icon: 'mdi:open-in-new'
-                    name: SwitchNode 1
-                    type: weblink
-                    url: 'http://192.168.25.54/'
-                  - icon: 'mdi:open-in-new'
-                    name: SwitchNode 2
-                    type: weblink
-                    url: 'http://192.168.25.55/'
-                  - icon: 'mdi:open-in-new'
-                    name: SwitchNode 3
-                    type: weblink
-                    url: 'http://192.168.25.56/'
-                  - icon: 'mdi:open-in-new'
-                    name: SwitchNode 4
-                    type: weblink
-                    url: 'http://192.168.25.57/'
-                  - type: section
-                  - icon: 'mdi:open-in-new'
-                    name: House
-                    type: weblink
-                    url: 'http://192.168.25.61/'
-                  - icon: 'mdi:open-in-new'
-                    name: Garage
-                    type: weblink
-                    url: 'http://192.168.25.62/'
-                  - icon: 'mdi:open-in-new'
-                    name: Geyser
-                    type: weblink
-                    url: 'http://192.168.25.63/'
-                  - icon: 'mdi:open-in-new'
-                    name: Poolbox
-                    type: weblink
-                    url: 'http://192.168.25.64/'
-                  - icon: 'mdi:open-in-new'
-                    name: Paradox
-                    type: weblink
-                    url: 'http://192.168.25.65/'
-                  - icon: 'mdi:open-in-new'
-                    name: Sonoff Basic
-                    type: weblink
-                    url: 'http://192.168.25.66/'
-                  - type: section
-                  - icon: 'mdi:open-in-new'
-                    name: Developer (esp-01)
-                    type: weblink
-                    url: 'http://192.168.25.69/'
-                head:
-                  label: IoT Node Config Links
-                  type: section
-                padding: 1
-                type: 'custom:fold-entity-row'
-            show_header_toggle: false
-            type: entities
+              - icon: 'mdi:open-in-new'
+                name: RelayBoard 1
+                type: weblink
+                url: 'http://192.168.25.51/'
+              - icon: 'mdi:open-in-new'
+                name: RelayBoard 2
+                type: weblink
+                url: 'http://192.168.25.52/'
+              - icon: 'mdi:open-in-new'
+                name: RelayBoard 3
+                type: weblink
+                url: 'http://192.168.25.53/'
+              - type: section
+              - icon: 'mdi:open-in-new'
+                name: SwitchNode 1
+                type: weblink
+                url: 'http://192.168.25.54/'
+              - icon: 'mdi:open-in-new'
+                name: SwitchNode 2
+                type: weblink
+                url: 'http://192.168.25.55/'
+              - icon: 'mdi:open-in-new'
+                name: SwitchNode 3
+                type: weblink
+                url: 'http://192.168.25.56/'
+              - icon: 'mdi:open-in-new'
+                name: SwitchNode 4
+                type: weblink
+                url: 'http://192.168.25.57/'
+              - type: section
+              - icon: 'mdi:open-in-new'
+                name: House
+                type: weblink
+                url: 'http://192.168.25.61/'
+              - icon: 'mdi:open-in-new'
+                name: Garage
+                type: weblink
+                url: 'http://192.168.25.62/'
+              - icon: 'mdi:open-in-new'
+                name: Geyser
+                type: weblink
+                url: 'http://192.168.25.63/'
+              - icon: 'mdi:open-in-new'
+                name: Poolbox
+                type: weblink
+                url: 'http://192.168.25.64/'
+              - icon: 'mdi:open-in-new'
+                name: Paradox
+                type: weblink
+                url: 'http://192.168.25.65/'
+              - icon: 'mdi:open-in-new'
+                name: Sonoff Basic
+                type: weblink
+                url: 'http://192.168.25.66/'
+              - type: section
+              - icon: 'mdi:open-in-new'
+                name: Developer (esp-01)
+                type: weblink
+                url: 'http://192.168.25.69/'
+            head:
+              label: IoT Node Config Links
+              type: section
+            padding: 1
+            type: 'custom:fold-entity-row'
+        show_header_toggle: false
+        type: entities
+      - entities:
           - entities:
-              - entities:
-                  - entity: script.request_hardware_status
-                  - entity: script.restart_all_nodes
-                  - entity: script.node_restart_rb01
-                    name: Restart RelayBoard 1
-                  - entity: script.node_restart_rb02
-                    name: Restart RelayBoard 2
-                  - entity: script.node_restart_rb03
-                    name: Restart RelayBoard 3
-                  - entity: script.node_restart_sw01
-                    name: Restart SwitchNode 1
-                  - entity: script.node_restart_sw02
-                    name: Restart SwitchNode 2
-                  - entity: script.node_restart_sw03
-                    name: Restart SwitchNode 3
-                  - entity: script.node_restart_sw04
-                    name: Restart SwitchNode 4
-                  - entity: script.node_restart_dev01
-                    name: Restart House
-                  - entity: script.node_restart_dev02
-                    name: Restart Garage
-                  - entity: script.node_restart_dev03
-                    name: Restart Geyser
-                  - entity: script.node_restart_dev04
-                    name: Restart Poolbox
-                  - entity: script.node_restart_dev05
-                    name: Restart Paradox
-                  - entity: script.node_restart_dev06
-                    name: Restart Sonoff Basic
-                  - entity: script.node_restart_dev09
-                    name: Restart Developer
-                head:
-                  label: ESP Node Tasks
-                  type: section
-                padding: 1
-                type: 'custom:fold-entity-row'
-            show_header_toggle: false
-            type: entities
-        type: 'custom:stack-in-card'
+              - entity: script.request_hardware_status
+              - entity: script.node_restart_all
+              - entity: script.node_restart_rb01
+                name: Restart RelayBoard 1
+              - entity: script.node_restart_rb02
+                name: Restart RelayBoard 2
+              - entity: script.node_restart_rb03
+                name: Restart RelayBoard 3
+              - entity: script.node_restart_sw01
+                name: Restart SwitchNode 1
+              - entity: script.node_restart_sw02
+                name: Restart SwitchNode 2
+              - entity: script.node_restart_sw03
+                name: Restart SwitchNode 3
+              - entity: script.node_restart_sw04
+                name: Restart SwitchNode 4
+              - entity: script.node_restart_dev01
+                name: Restart House
+              - entity: script.node_restart_dev02
+                name: Restart Garage
+              - entity: script.node_restart_dev03
+                name: Restart Geyser
+              - entity: script.node_restart_dev04
+                name: Restart Poolbox
+              - entity: script.node_restart_dev05
+                name: Restart Paradox
+              - entity: script.node_restart_dev06
+                name: Restart Sonoff Basic
+              - entity: script.node_restart_dev09
+                name: Restart Developer
+            head:
+              label: ESP Node Tasks
+              type: section
+            padding: 1
+            type: 'custom:fold-entity-row'
+        show_header_toggle: false
+        type: entities
     icon: 'mdi:settings'
     id: options
     title: Settings
-  - badges: []
-    cards:
-      - columns:
-          - add_link: link
-            field: title
-            title: Title
-          - field: summary
-            title: Description
-        entity: sensor.torrentday_bluray
-        feed_attribute: entries
-        row_limit: 30
-        title: New BluRay Movies
-        type: 'custom:list-card'
-    icon: 'mdi:movie-open-outline'
-    panel: true
