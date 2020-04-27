@@ -1,13 +1,21 @@
 # @lispwarez Home-Assistant config
 
 Custom components all available via HACS
+
 auto-entites
+
 Bar Card
+
 card-mod
+
 Custom Header
+
 fold-entity-row
+
 Mini Media Player
+
 Stack in Card
+
 
 
 Now for some screenshots
