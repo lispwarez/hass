@@ -6,11 +6,9 @@
   sensors:
     telegram_notifications:
       value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and states('sensor.uptime') | int > 1 }}"
-    tracked_things:
-      value_template: "{{ is_state('person.lispwarez', 'home') }}"
     someone_home:
-      value_template: "{{ is_state('binary_sensor.tracked_things', 'on') or is_state('input_boolean.someone_home_forced', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
-      icon_template: "mdi:numeric-{{ states.person|selectattr('state','eq','home')|list|count }}-box-outline"
+      value_template: "{{ is_state('group.tracked_things', 'home') or is_state('input_boolean.someone_home_forced', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
+#      icon_template: "mdi:numeric-{{states|selectattr('entity_id','in',state_attr('group.tracked_things','entity_id'))|selectattr('state','eq','home')|list|count}}-box-outline"
     doors_open_when_armed:
       value_template: "{{ is_state('binary_sensor.alarm_status', 'on') and (is_state('binary_sensor.door_contact_garage_double', 'on') or is_state('binary_sensor.door_contact_garage_single', 'on')) }}"
       device_class: problem
@@ -23,6 +21,10 @@
     solar_below_cutoff:
       value_template: "{{ states('sensor.axpert_pvw') | int < 200 and is_state('binary_sensor.axpert_output_source_is_grid', 'off') }}"
       delay_on: 50
+    poolpump_working_time:
+      value_template: >
+        {{ not ((state_attr('sun.sun', 'elevation') < 38 and state_attr('sun.sun', 'azimuth') > 15) and is_state_attr('sun.sun', 'rising', true)) and
+        not ((state_attr('sun.sun', 'elevation') < 30 and state_attr('sun.sun', 'azimuth') < 320) and is_state_attr('sun.sun', 'rising', false)) }}
     zones_idle:
       entity_id: sensor.time
       value_template: >-

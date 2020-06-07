@@ -13,3 +13,7 @@ nodes_uptime:
 - sensor.node_up_sw02
 - sensor.node_up_sw03
 - sensor.node_up_sw04
+
+tracked_things:
+- device_tracker.lisp_cell
+- device_tracker.lisp_gps

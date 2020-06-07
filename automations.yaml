@@ -7,9 +7,9 @@
   action:
   - service: script.request_hardware_status
   - service: script.axpert_query_piri
-  - service: frontend.set_theme
-    data:
-      name: midnight2
+#  - service: frontend.set_theme
+#    data:
+#      name: midnight2
 #
 - alias: new_day_resets
   initial_state: true
@@ -89,14 +89,18 @@
   - service: media_player.turn_off
     entity_id: media_player.kitchen_speaker
   - service: media_player.turn_off
-    entity_id: media_player.living_room_tv
+    entity_id: media_player.lounge_chromecast
+  - service: media_player.turn_off
+    entity_id: media_player.lounge_samsung
+  - service: media_player.turn_off
+    entity_id: media_player.kodi_lounge
 #
 - alias: play_radio_when_arriving_home
   initial_state: true
   trigger:
   - platform: state
-    entity_id: binary_sensor.tracked_things
-    to: "on"
+    entity_id: group.tracked_things
+    to: "home"
   action:
   - service: script.stream_radio
 #
@@ -112,7 +116,7 @@
   - service: homeassistant.turn_off
     data_template:
       entity_id: >
-        {% set ignored_entities = ['light.house_lights', 'light.outside'] %}
+        {% set ignored_entities = ['light.house_lights','light.outside','light.front_door'] %}
         {{ (states.light|list + states.switch|list + states.media_player|list) | rejectattr('state','in',['off','idle']) | map(attribute='entity_id') | reject('in',ignored_entities) | join(', ') }}
 #
 - alias: bedtime_disable
@@ -168,11 +172,11 @@
     - sensor.speedtest_upload
     below: 48
   condition:
-    condition: state
-    entity_id: binary_sensor.telegram_notifications
-    state: "on"
+  - condition: template
+    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and as_timestamp(now()) - as_timestamp(states.automation.speedtest_results.last_changed) > 10 }}"
   action:
-    service: telegram_bot.send_message
+  - delay: '00:00:02'
+  - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
       message: "*Speedtest results:* Download {{ states.sensor.speedtest_download.state_with_unit }} Upload: {{ states.sensor.speedtest_upload.state_with_unit }}"
@@ -184,7 +188,7 @@
   trigger:
   - platform: state
     entity_id: media_player.kodi_lounge
-    to: playing
+    to: "playing"
   condition:
   - condition: state
     entity_id: sun.sun
@@ -207,7 +211,7 @@
   trigger:
   - platform: state
     entity_id: media_player.kodi_lounge
-    from: playing
+    from: "playing"
   condition:
   - condition: state
     entity_id: sun.sun
@@ -226,14 +230,16 @@
   trigger:
   - platform: state
     entity_id: media_player.kodi_lounge
-    to: playing
+    to: "playing"
   condition:
   - condition: state
     entity_id: media_player.jbl_speaker
-    state: playing
+    state: "playing"
   action:
   - service: media_player.turn_off
     entity_id: media_player.jbl_speaker
+  - service: media_player.turn_off
+    entity_id: media_player.lounge_chromecast
 #
 - alias: kodi_turned_on
   initial_state: true
@@ -243,8 +249,8 @@
     from: "off"
   condition:
   - condition: state
-    entity_id: device_tracker.tv_samsung
-    state: "not_home"
+    entity_id: media_player.lounge_samsung
+    state: "off"
   action:
   - service: script.send_ir_03
   - service: script.send_ir_04
@@ -257,10 +263,11 @@
     to: "off"
   condition:
   - condition: template
-    value_template: "{{ is_state('device_tracker.tv_samsung', 'home') and not is_state('media_player.living_room_tv', 'playing') }}"
+    value_template: "{{ not is_state('media_player.lounge_samsung', 'playing') and not is_state('media_player.lounge_chromecast', 'playing') }}"
   action:
   - service: script.send_ir_03
-  - service: script.send_ir_04
+  - service: media_player.turn_off
+    entity_id: media_player.lounge_samsung
 #########################################################################################################
 ################### Device Tracking ######################
 - alias: new_device_found_on_wifi
@@ -350,13 +357,16 @@
   initial_state: true
   trigger:
   - platform: template
-    value_template: "{{ states('weather.openweathermap') in ['cloudy','rainy','pouring','sunny'] }}"
+    value_template: "{{ states('weather.openweathermap') in ['cloudy','rainy','pouring','sunny','partly cloudy'] }}"
+  - platform: state
+    entity_id: binary_sensor.axpert_has_solar
+    to: "on"
   condition:
   - condition: state
     entity_id: binary_sensor.axpert_has_solar
     state: "on"
   action:
-  - service_template: automation.turn_{{ 'on' if states('weather.openweathermap') in ['sunny'] else 'off' }}
+  - service_template: automation.turn_{{ 'on' if states('weather.openweathermap') in ['sunny','partly cloudy'] else 'off' }}
     entity_id: automation.axpert_change_to_solar
 #
 - alias: axpert_pi_not_updating
@@ -429,14 +439,14 @@
   - condition: template
     value_template: >-
       {{ is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_output_source', 'Grid') and 
-      (as_timestamp(now()) - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 and 
-      (not (state_attr('sun.sun', 'elevation') | int < 28 and is_state_attr('sun.sun', 'rising', true)) or states('sensor.axpert_outw') | int < states('sensor.axpert_pvva') | int * 0.8) and 
-      not (state_attr('sun.sun', 'elevation') | int < 14 and is_state_attr('sun.sun', 'rising', false)) and
-      states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1800 }}
+      not ((state_attr('sun.sun', 'elevation') < 25 and state_attr('sun.sun', 'azimuth') > 33) and is_state_attr('sun.sun', 'rising', true)) and 
+      not (state_attr('sun.sun', 'elevation') < 14 and is_state_attr('sun.sun', 'rising', false)) and
+      states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1800 and
+      (now().timestamp() - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 }}
   action:
   - service: script.axpert_change_source_solar
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter"
       message: "changed to solar"
 #
@@ -452,13 +462,13 @@
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Inverter change to Grid due to no solar input"
       disable_notification: true
   - service: script.send_inverter_data
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter Changeover"
       message: "due to no solar input"
       entity_id: binary_sensor.axpert_has_solar
@@ -477,13 +487,13 @@
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Setting inverter source to Grid due to battery below 75%"
       disable_notification: true
   - service: script.send_inverter_data
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter Changeover"
       message: "due to battery below 75%"
       entity_id: sensor.axpert_battp
@@ -500,13 +510,13 @@
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Setting inverter source to Grid due to low solar power"
       disable_notification: true
   - service: script.send_inverter_data
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter Changeover"
       message: "due to low solar power"
       entity_id: binary_sensor.solar_cutoff_main
@@ -525,13 +535,13 @@
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Setting inverter source to Grid due to prolonged battery usage"
       disable_notification: true
   - service: script.send_inverter_data
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter Changeover"
       message: "due to prolonged battery usage"
       entity_id: sensor.axpert_battp
@@ -549,13 +559,13 @@
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Setting inverter source to Grid due to using more power than solar"
       disable_notification: true
   - service: script.send_inverter_data
   - service: logbook.log
-    data_template:
+    data:
       name: "Inverter Changeover"
       message: "due to using more power than making"
       entity_id: sensor.axpert_battp
@@ -574,6 +584,13 @@
   trigger:
   - platform: template
     value_template: "{{ is_state('sun.sun', 'below_horizon') or is_state('binary_sensor.axpert_has_solar', 'off') }}"
+  - platform: numeric_state
+    entity_id: sensor.axpert_pvw
+    below: 50
+    for: '00:00:30'
+  condition:
+    condition: template
+    value_template: "{{ is_state_attr('sun.sun', 'rising', false) }}"
   action:
   - service: script.axpert_charge_source_both
 #
@@ -613,8 +630,9 @@
 - alias: pool_pump_not_on_today
   initial_state: true
   trigger:
-  - platform: template
-    value_template: "{{ states('sensor.time') == states('input_datetime.poolpump_on_time')[0:5] }}"
+  - platform: state
+    entity_id: binary_sensor.poolpump_working_time
+    to: "on"
   condition:
   - condition: state
     entity_id: automation.pool_pump_on_for_conditions
@@ -639,8 +657,8 @@
     data_template:
       target: !secret telegram_userid_1
       message: >-
-        {% set runtime = now().replace(microsecond=0) - trigger.from_state.last_updated.replace(microsecond=0) %}
-        Pool pump was running for {{ (runtime.seconds/60) | round(1) }} minutes
+        {% set seconds = now().timestamp() - as_timestamp(trigger.from_state.last_changed) %}
+        Pool pump was running for {% if seconds > 60 %}{{ (seconds/60)|int }} minutes{% else %}{{ seconds|int }} seconds{% endif %}
       disable_notification: true
 #
 - alias: pool_pump_on_for_conditions
@@ -650,11 +668,11 @@
   condition:
   - condition: template
     value_template: >-
-      {{ is_state('switch.pool_pump', 'off') and 
-      is_state('binary_sensor.axpert_output_source_is_grid', 'off') and is_state('sensor.axpert_battdischargea', '0') and states('sensor.axpert_outw') | int < 800 and 
-      (as_timestamp(now()) - as_timestamp(states.switch.pool_pump.last_changed)) > 240 and 
-      states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and 
-      not (state_attr('sun.sun', 'elevation') | int < 30 and is_state_attr('sun.sun', 'rising', false)) }}
+      {{ is_state('switch.pool_pump', 'off') and is_state('binary_sensor.poolpump_working_time', 'on') and 
+      is_state('binary_sensor.axpert_output_source_is_grid', 'off') and 
+      is_state('sensor.axpert_battdischargea', '0') and states('sensor.axpert_outw') | int < 800 and 
+      (now().timestamp() - as_timestamp(states.switch.pool_pump.last_changed)) > 240  }}
+# states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and 
   action:
   - service: switch.turn_on
     entity_id: switch.pool_pump
@@ -872,10 +890,12 @@
     entity_id: binary_sensor.paradox_zone_16
     to: "on"
   condition:
-  - condition: template
-    value_template: "{{ is_state('input_boolean.notification_linecrossing_garden', 'on') and is_state('binary_sensor.alarm_status', 'on') }}"
+  - condition: state
+    entity_id: binary_sensor.alarm_status
+    state: "on"
   action:
   - service: script.light_timer_garden
+  - service: shell_command.kodi_pip_garden
   - service: telegram_bot.send_photo
     data:
       target: !secret telegram_userid_1
@@ -889,9 +909,6 @@
   - platform: state
     entity_id: binary_sensor.driveway_line_crossing
     to: "on"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('input_boolean.notification_linecrossing_driveway', 'on') }}"
   action:
   - service: telegram_bot.send_photo
     data:
@@ -907,8 +924,9 @@
     entity_id: binary_sensor.paradox_zone_14
     to: "on"
   condition:
-  - condition: template
-    value_template: "{{ is_state('sensor.alarm_arm_mode', 'Armed') }}"
+  - condition: state
+    entity_id: sensor.alarm_arm_mode
+    state: "Armed"
   action:
   - service: telegram_bot.send_photo
     data:
@@ -1093,15 +1111,20 @@
   condition:
   - condition: template
     value_template: "{{ (is_state('input_boolean.enable_wakeup_workdays', 'on') and is_state('binary_sensor.workday_sensor', 'on')) or is_state('input_boolean.enable_wakeup_workdays', 'off') }}"
+  - condition: template
+    value_template: "{{ is_state('input_boolean.enable_wakeup_light', 'on') or is_state('input_boolean.enable_wakeup_radio', 'on') }}"
   action: 
   - service: script.wakeup_radio
   - service: script.wakeup_light
+  - service: input_boolean.turn_off
+    entity_id: input_boolean.bedtime_mode
 #
 - alias: outside_lights_on_at_night
   initial_state: true
   trigger:
-  - platform: sun
-    event: sunset
+  - platform: state
+    entity_id: sun.sun
+    to: "below_horizon"
   action:
   - service: light.turn_on
     entity_id: light.front_door
@@ -1109,8 +1132,9 @@
 - alias: outside_lights_off_in_morning
   initial_state: true
   trigger:
-  - platform: sun
-    event: sunrise
+  - platform: state
+    entity_id: sun.sun
+    to: "above_horizon"
   action:
   - service: light.turn_off
     entity_id: light.outside
@@ -1144,7 +1168,7 @@
   action: 
   - service: script.light_timer_bedroom
 #
-- alias: bedroom_light_on_from_timer
+- alias: bedroom_lamp_on_from_timer
   initial_state: true
   trigger:
   - platform: state
@@ -1154,7 +1178,7 @@
     service: light.turn_on
     entity_id: light.bed_lamp
 #
-- alias: bedroom_light_off_from_timer
+- alias: bedroom_lamp_off_from_timer
   initial_state: true
   trigger:
   - platform: state
@@ -1163,6 +1187,16 @@
   action:
     service: light.turn_off
     entity_id: light.bed_lamp
+#
+- alias: bedroom_lamp_off_light_on
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: light.bedroom
+    to: "on"
+  action:
+    service: timer.cancel
+    entity_id: timer.bedroom_light
 #
 - alias: garden_timer_on_from_motion
   initial_state: true
@@ -1231,7 +1265,11 @@
   - condition: state
     entity_id: binary_sensor.someone_home
     state: "on"
+  - condition: state
+    entity_id: input_boolean.bedtime_mode
+    state: "off"
   action:
+  - service: shell_command.kodi_pip_driveway
   - service: media_player.play_media
     data:
       entity_id: media_player.kitchen_speaker
@@ -1254,6 +1292,7 @@
     data_template:
       target: !secret telegram_userid_1
       message: "Sunrise will be at {{ as_timestamp(states.sun.sun.attributes.next_rising)|timestamp_custom('%H:%M') }}"
+      disable_notification: true
 #
 #########################################################################################################
 ################### Telegram BOT ######################

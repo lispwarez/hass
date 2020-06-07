@@ -253,3 +253,26 @@ automation.paradox_auto_set_alarm:
 sensor.database_size:
   friendly_name: Database Disk Usage
   icon: mdi:database
+binary_sensor.axpert_has_solar:
+  friendly_name: Solar Power Detected
+binary_sensor.power_warning:
+  friendly_name: No Power From Grid
+binary_sensor.tracked_things:
+  friendly_name: Tracked Devices
+media_player.lounge_chromecast:
+  friendly_name: Lounge Chromecast
+media_player.lounge_samsung:
+  friendly_name: Lounge TV
+media_player.kitchen_speaker:
+  friendly_name: Kitchen Home Mini
+automation.send_image_on_motion_driveway:
+  friendly_name: Line Crossing Driveway
+  icon: mdi:telegram
+automation.send_image_on_motion_garden:
+  friendly_name: Line Crossing Garden
+  icon: mdi:telegram
+automation.motion_in_driveway_ring_doorbell:
+  friendly_name: Ring Doorbell & Kodi Preview
+  icon: mdi:bell-ring-outline
+binary_sensor.poolpump_working_time:
+  friendly_name: Pool Pump Working Time

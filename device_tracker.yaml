@@ -1,12 +1,12 @@
 ﻿##############  Wired devices ##############
-# PC Dump
-- platform: nmap_tracker
-  home_interval: 2
-  hosts: 192.168.25.101
+# 
+- platform: ping
+  hosts: 
+    pc_dump: 192.168.25.101
 #
 # PC Kodi MCE
 - platform: nmap_tracker
-  home_interval: 2
+  home_interval: 1
   hosts: 192.168.25.10
 #
 # TV Samsung

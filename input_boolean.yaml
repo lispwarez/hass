@@ -7,14 +7,6 @@ notification_telegram:
   name: "Telegram Notifications"
   icon: mdi:telegram
 #
-notification_linecrossing_driveway:
-  name: "Line Crossing Driveway"
-  icon: mdi:telegram
-#
-notification_linecrossing_garden:
-  name: "Line Crossing Garden"
-  icon: mdi:telegram
-#
 timer_geyser_workdays:
   name: "Workdays only"
   icon: mdi:calendar-range

@@ -6,33 +6,37 @@ homeassistant:
   unit_system: metric
   time_zone: !secret home_timezone
   customize: !include customize.yaml
+  external_url: !secret http_base_url_port
+  internal_url: http://192.168.25.4:8123/
 #  whitelist_external_dirs:
 #    - /tmp/hass
 #
 config:
+#
 http:
   server_port: 8443
-  base_url: !secret http_base_url_port
   ssl_certificate: !secret ssl_cert
   ssl_key: !secret ssl_key
 #
 frontend:
   themes: !include_dir_merge_named themes
-
+#
 logger:
   default: warning
-
-map:
+#
 mobile_app:
 person:
 sun:
 system_health:
 updater:
+map:
 #
 shell_command:
   power_reading: "/etc/homeassistant/shell_scripts/sql_power.sh {{ reading }}"
   restart_paradox: 'sudo systemctl restart paradoxip'
   restart_axpert: "ssh -o StrictHostKeyChecking=no pi@192.168.25.7 'sudo systemctl restart axpert.service'"
+  kodi_pip_garden: "kodi-send --host=192.168.25.10 -a 'XBMC.RunPlugin(plugin://plugin.video.surveillanceroom?action=show_preview&camera_number=1)'"
+  kodi_pip_driveway: "kodi-send --host=192.168.25.10 -a 'XBMC.RunPlugin(plugin://plugin.video.surveillanceroom?action=show_preview&camera_number=2)'"
 #
 #########################################################################
 #
@@ -52,8 +56,11 @@ telegram_bot:
   - !secret telegram_userid_2
 #
 shopping_list:
+#
 speedtestdotnet:
+#
 stream:
+#
 wake_on_lan:
 #
 apcupsd:
@@ -67,6 +74,12 @@ weather:
 - platform: openweathermap
   api_key: !secret openweathermap_api_key
   mode: freedaily
+#
+samsungtv:
+  host: 192.168.25.14
+  name: lounge_samsung
+  turn_on_action:
+  - service: script.send_ir_04
 #
 proximity:
   lisp_home:

@@ -1,6 +1,5 @@
   db_url: !secret mysql_db_url
   purge_keep_days: 360
-  purge_interval: 1
   exclude:
     domains:
     - sun
@@ -91,8 +90,8 @@
     - binary_sensor.paradox_zone_15
     - binary_sensor.paradox_zone_16
     - binary_sensor.paradox_zone_17
-    #- binary_sensor.solar_below_800
-    #- binary_sensor.solar_below_cutoff
+    - binary_sensor.solar_below_800
+    - binary_sensor.solar_below_cutoff
     - binary_sensor.telegram_notifications
     - binary_sensor.updater
     - binary_sensor.workday_sensor

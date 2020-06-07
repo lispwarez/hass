@@ -2,6 +2,7 @@
 - platform: group
   name: Outside
   entities:
+  - light.pool
   - light.patio
   - light.garden
   - light.front_door
@@ -20,7 +21,7 @@
   - light.driveway
   - light.en_suite
   - light.entrance
-  - light.front_door
+#  - light.front_door
   - light.garage
   - light.garden
   - light.kitchen

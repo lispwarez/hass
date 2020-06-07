@@ -11,12 +11,5 @@
     - service: kodi.call_method
       data:
         entity_id: media_player.kodi_lounge
-        method: Addons.ExecuteAddon
-        addonid: script.json-cec
-        params:
-          command: standby
-    - service: kodi.call_method
-      data:
-        entity_id: media_player.kodi_lounge
         method: System.Shutdown
 #

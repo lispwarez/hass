@@ -8,17 +8,17 @@ restart_paradox:
 restart_axpert:
   sequence: { service: shell_command.restart_axpert }
 #
-send_ir_01:
-  sequence: { service: mqtt.publish, data: { topic: "ha/c/ir/all", payload: "01" } }
-#
-send_ir_02:
-  sequence: { service: mqtt.publish, data: { topic: "ha/c/ir/all", payload: "02" } }
-#
 send_ir_03:
   sequence: { service: mqtt.publish, data: { topic: "cmnd/blah/IRsend", payload: '{"Protocol":"NEC","Bits":32,"Data":"0x10EF08F7"}' } }
 #
 send_ir_04:
-  sequence: { service: mqtt.publish, data: { topic: "cmnd/blah/IRsend", payload: '{"Protocol":"SAMSUNG","Bits":32,"Data":"0xE0E040BF"}' } }
+  sequence: 
+  - service: switch.turn_on
+    entity_id: switch.ir_samsung_power
+  - service: mqtt.publish
+    data: 
+      topic: "cmnd/blah/IRsend"
+      payload: '{"Protocol":"SAMSUNG","Bits":32,"Data":"0xE0E040BF"}'
 #
 update_speedtest:
   sequence: { service: speedtestdotnet.speedtest }
@@ -47,8 +47,8 @@ wakeup_radio:
 stream_radio:
   sequence: 
   - service: media_player.play_media
-    data: 
-      entity_id: media_player.jbl_speaker
+    data_template: 
+      entity_id: "{{ 'media_player.kitchen_speaker' if is_state('media_player.jbl_speaker','unavailable') else 'media_player.jbl_speaker' }}"
       media_content_id: "http://20853.live.streamtheworld.com/KFM_SC?DIST=TuneIn&TGT=TuneIn&maxServers=2&ua=RadioTime&ttag=RadioTime"
       media_content_type: "audio/mp4"
 #
@@ -168,7 +168,7 @@ paradox_status_disarm:
 #
 paradox_set_alarm_mode:
   sequence:
-  - delay: '00:00:01'
+  - delay: '00:00:02'
   - condition: template
     value_template: "{{ as_timestamp(now()) - as_timestamp(states.binary_sensor.paradox_output_3.last_changed) < 6 }}"
   - service: input_boolean.turn_on
