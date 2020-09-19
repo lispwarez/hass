@@ -29,7 +29,7 @@
   trigger:
     platform: time_pattern
     minutes: 59
-    seconds: 50
+    seconds: 55
   action:
   - service: mqtt.publish
     data_template:
@@ -44,7 +44,7 @@
   initial_state: true
   trigger:
     platform: time
-    at: "23:59:52"
+    at: "23:59:58"
   action:
   - service: mqtt.publish
     data_template:
@@ -59,22 +59,6 @@
       topic: "ha/internal/stats_power_solar"
       payload: "{{ states('sensor.axpert_power_solar') }}"
 #
-- alias: set_volume_morning
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: sensor.time
-    to: "04:00"
-  action:
-  - service: media_player.turn_on
-    data:
-      entity_id: media_player.kitchen_speaker
-  - delay: '00:00:02'
-  - service: media_player.volume_set
-    data:
-      entity_id: media_player.kitchen_speaker
-      volume_level: 0.3
-#
 ################################################
 #
 - alias: not_home_turn_things_off
@@ -88,6 +72,8 @@
     entity_id: media_player.jbl_speaker
   - service: media_player.turn_off
     entity_id: media_player.kitchen_speaker
+  - service: media_player.turn_off
+    entity_id: media_player.bedroom
   - service: media_player.turn_off
     entity_id: media_player.lounge_chromecast
   - service: media_player.turn_off
@@ -116,8 +102,8 @@
   - service: homeassistant.turn_off
     data_template:
       entity_id: >
-        {% set ignored_entities = ['light.house_lights','light.outside','light.front_door'] %}
-        {{ (states.light|list + states.switch|list + states.media_player|list) | rejectattr('state','in',['off','idle']) | map(attribute='entity_id') | reject('in',ignored_entities) | join(', ') }}
+        {% set ignored_entities = ['light.house_lights','light.outside','light.front_door','switch.smart_plug_1','switch.smart_plug_2'] %}
+        {{ (states.light|list + states.switch|list + states.media_player|list) | rejectattr('state','in',['off','idle','unavailable']) | map(attribute='entity_id') | reject('in',ignored_entities) | join(', ') }}
 #
 - alias: bedtime_disable
   initial_state: true
@@ -232,10 +218,13 @@
     entity_id: media_player.kodi_lounge
     to: "playing"
   condition:
-  - condition: state
-    entity_id: media_player.jbl_speaker
-    state: "playing"
+  - condition: template
+    value_template: "{{ is_state('media_player.jbl_speaker', 'playing') or is_state('media_player.kitchen_speaker', 'playing') or is_state('media_player.bedroom', 'playing') }}"
   action:
+  - service: media_player.turn_off
+    entity_id: media_player.kitchen_speaker
+  - service: media_player.turn_off
+    entity_id: media_player.bedroom
   - service: media_player.turn_off
     entity_id: media_player.jbl_speaker
   - service: media_player.turn_off
@@ -357,7 +346,7 @@
   initial_state: true
   trigger:
   - platform: template
-    value_template: "{{ states('weather.openweathermap') in ['cloudy','rainy','pouring','sunny','partly cloudy'] }}"
+    value_template: "{{ states('weather.openweathermap') in ['cloudy','rainy','pouring','sunny','partlycloudy'] }}"
   - platform: state
     entity_id: binary_sensor.axpert_has_solar
     to: "on"
@@ -366,7 +355,7 @@
     entity_id: binary_sensor.axpert_has_solar
     state: "on"
   action:
-  - service_template: automation.turn_{{ 'on' if states('weather.openweathermap') in ['sunny','partly cloudy'] else 'off' }}
+  - service_template: automation.turn_{{ 'on' if states('weather.openweathermap') in ['sunny','partlycloudy'] else 'off' }}
     entity_id: automation.axpert_change_to_solar
 #
 - alias: axpert_pi_not_updating
@@ -445,10 +434,6 @@
       (now().timestamp() - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 }}
   action:
   - service: script.axpert_change_source_solar
-  - service: logbook.log
-    data:
-      name: "Inverter"
-      message: "changed to solar"
 #
 - alias: axpert_change_to_grid_0
   initial_state: true
@@ -467,12 +452,6 @@
       message: "Inverter change to Grid due to no solar input"
       disable_notification: true
   - service: script.send_inverter_data
-  - service: logbook.log
-    data:
-      name: "Inverter Changeover"
-      message: "due to no solar input"
-      entity_id: binary_sensor.axpert_has_solar
-      domain: binary_sensor
 #
 - alias: axpert_change_to_grid_1
   initial_state: true
@@ -492,12 +471,6 @@
       message: "Setting inverter source to Grid due to battery below 75%"
       disable_notification: true
   - service: script.send_inverter_data
-  - service: logbook.log
-    data:
-      name: "Inverter Changeover"
-      message: "due to battery below 75%"
-      entity_id: sensor.axpert_battp
-      domain: sensor
 #
 - alias: axpert_change_to_grid_2
   initial_state: true
@@ -515,12 +488,6 @@
       message: "Setting inverter source to Grid due to low solar power"
       disable_notification: true
   - service: script.send_inverter_data
-  - service: logbook.log
-    data:
-      name: "Inverter Changeover"
-      message: "due to low solar power"
-      entity_id: binary_sensor.solar_cutoff_main
-      domain: binary_sensor
 #
 - alias: axpert_change_to_grid_3
   initial_state: true
@@ -540,12 +507,6 @@
       message: "Setting inverter source to Grid due to prolonged battery usage"
       disable_notification: true
   - service: script.send_inverter_data
-  - service: logbook.log
-    data:
-      name: "Inverter Changeover"
-      message: "due to prolonged battery usage"
-      entity_id: sensor.axpert_battp
-      domain: sensor
 #
 - alias: axpert_change_to_grid_4
   initial_state: true
@@ -564,12 +525,6 @@
       message: "Setting inverter source to Grid due to using more power than solar"
       disable_notification: true
   - service: script.send_inverter_data
-  - service: logbook.log
-    data:
-      name: "Inverter Changeover"
-      message: "due to using more power than making"
-      entity_id: sensor.axpert_battp
-      domain: sensor
 #
 - alias: axpert_charge_source_to_solar_only
   initial_state: true
@@ -672,7 +627,6 @@
       is_state('binary_sensor.axpert_output_source_is_grid', 'off') and 
       is_state('sensor.axpert_battdischargea', '0') and states('sensor.axpert_outw') | int < 800 and 
       (now().timestamp() - as_timestamp(states.switch.pool_pump.last_changed)) > 240  }}
-# states('sensor.time') >= states('input_datetime.poolpump_on_time')[0:5] and 
   action:
   - service: switch.turn_on
     entity_id: switch.pool_pump
@@ -800,7 +754,8 @@
   initial_state: true
   trigger: { platform: mqtt, topic: "Paradox/Events", payload: "Event:Non-reportable event;SubEvent:Arm in stay mode" }
   action:
-  - service: script.paradox_set_alarm_mode
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.alarm_mode_stay
 #
 - alias: paradox_alarm_status_clear
   initial_state: true
@@ -896,6 +851,7 @@
   action:
   - service: script.light_timer_garden
   - service: shell_command.kodi_pip_garden
+  - delay: "{{ '00:00:02' if is_state('sun.sun', 'below_horizon') else '00:00' }}"
   - service: telegram_bot.send_photo
     data:
       target: !secret telegram_userid_1
@@ -909,6 +865,12 @@
   - platform: state
     entity_id: binary_sensor.driveway_line_crossing
     to: "on"
+  condition:
+  - condition: state
+    entity_id: 
+    - input_boolean.garage_auto_opener
+    - binary_sensor.door_contact_garage_double
+    state: "off"
   action:
   - service: telegram_bot.send_photo
     data:
@@ -942,8 +904,9 @@
     entity_id: binary_sensor.paradox_zone_15
     to: "on"
   condition:
-  - condition: template
-    value_template: "{{ is_state('sensor.alarm_arm_mode', 'Armed') }}"
+  - condition: state
+    entity_id: sensor.alarm_arm_mode
+    state: "Armed"
   action:
   - service: telegram_bot.send_photo
     data:
@@ -1144,6 +1107,9 @@
   trigger:
   - platform: time_pattern
     minutes: "/10"
+  - platform: state
+    entity_id: binary_sensor.someone_home
+    to: "off"
   condition:
   - condition: template
     value_template: "{{ is_state('sun.sun', 'above_horizon') and is_state('binary_sensor.someone_home', 'off') and is_state('light.house_lights', 'on') }}"
@@ -1197,18 +1163,6 @@
   action:
     service: timer.cancel
     entity_id: timer.bedroom_light
-#
-- alias: garden_timer_on_from_motion
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.paradox_zone_16
-    to: "on"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('light.garden', 'off') and is_state('binary_sensor.alarm_status', 'on') }}"
-  action:
-  - service: script.light_timer_garden
 #
 - alias: garden_light_on_from_timer
   initial_state: true
@@ -1332,16 +1286,45 @@
   - service: telegram_bot.send_message
     data_template:
       target: "{{ trigger.event.data.user_id }}"
-      message: "Try clicking one of these. Maybe you get a reply"
+      message: "Some buttons for you"
       inline_keyboard:
       - "Garden Camera:/cam2, Driveway Camera:/cam3"
       - "Inside Camera:/cam1, Garage:/cam4"
-      - "Run Speedtest:/runspeed, Speedtest Results:/getspeed"
       - "Output from Grid:/invertersetgrid, Output from Solar:/invertersetsolar"
       - "Charge Grid:/chargegrid, Charge Solar First:/chargesolarfirst"
       - "Charge Both:/chargeboth, Charge Solar Only:/chargesolaronly"
       - "Arm:/alarm_arm, Stay:/alarm_stay, Disarm:/alarm_off"
+      - "Garage Open:/garage_open, Garage Close:/garage_close"
       - "Status:/status, Cancel:/cancel"
+#
+- alias: telegram_bot_garage_open
+  initial_state: true
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/garage_open'
+  action:
+  - service: telegram_bot.delete_message
+    data_template:
+      message_id: '{{ trigger.event.data.message.message_id }}'
+      chat_id: '{{ trigger.event.data.user_id }}'
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.garage_auto_opener
+#
+- alias: telegram_bot_garage_close
+  initial_state: true
+  trigger:
+  - platform: event
+    event_type: telegram_callback
+    event_data:
+      data: '/garage_close'
+  action:
+  - service: telegram_bot.delete_message
+    data_template:
+      message_id: '{{ trigger.event.data.message.message_id }}'
+      chat_id: '{{ trigger.event.data.user_id }}'
+  - service: script.garage_close_and_arm_alarm
 #
 - alias: telegram_bot_cancel
   initial_state: true
@@ -1467,38 +1450,6 @@
     data_template:
       name: "*Telegram Bot*"
       message: "Garage camera requested by {{ trigger.event.data.from_first }} {{ trigger.event.data.from_last }}"
-#
-- alias: telegram_bot_run_speedtest
-  initial_state: true
-  trigger:
-    platform: event
-    event_type: telegram_callback
-    event_data:
-      data: "/runspeed"
-  action:
-  - service: telegram_bot.answer_callback_query
-    data_template:
-      callback_query_id: '{{ trigger.event.data.id }}'
-      message: 'Running speedtest now. Please wait a few minutes before requesting results'
-  - service: speedtestdotnet.speedtest
-#
-- alias: telegram_bot_speedtest_results
-  initial_state: true
-  trigger:
-    platform: event
-    event_type: telegram_callback
-    event_data:
-      data: "/getspeed"
-  action:
-  - service: telegram_bot.edit_message
-    data_template:
-      message_id: '{{ trigger.event.data.message.message_id }}'
-      chat_id: '{{ trigger.event.data.user_id }}'
-      inline_keyboard: []
-      message: "*Speedtest results.* Last ran {{ relative_time(states.sensor.speedtest_download.last_updated) }} ago.
-        \nDownload {{ states.sensor.speedtest_download.state_with_unit }}
-        \nUpload {{ states.sensor.speedtest_upload.state_with_unit }}
-        \nPing {{ states.sensor.speedtest_ping.state_with_unit }}"
 #
 - alias: telegram_bot_status
   initial_state: true

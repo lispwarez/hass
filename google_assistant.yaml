@@ -1,9 +1,8 @@
   project_id: !secret google_assistant_project_id
-  #api_key: !secret google_assistant_api_key
   expose_by_default: false
   entity_config:
     media_player.kodi_lounge:
-      name: "media centre"
+      name: "kodi"
       expose: true
     light.kitchen_downlights:
       name: "downlights"

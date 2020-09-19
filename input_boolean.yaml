@@ -33,7 +33,7 @@ enable_tv_mode:
 #
 bedtime_mode:
   name: "Bed Time"
-  icon: mdi:hotel
+  icon: mdi:bed
   initial: off
 #
 someone_home_forced:

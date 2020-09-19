@@ -26,8 +26,8 @@
         {{ not ((state_attr('sun.sun', 'elevation') < 38 and state_attr('sun.sun', 'azimuth') > 15) and is_state_attr('sun.sun', 'rising', true)) and
         not ((state_attr('sun.sun', 'elevation') < 30 and state_attr('sun.sun', 'azimuth') < 320) and is_state_attr('sun.sun', 'rising', false)) }}
     zones_idle:
-      entity_id: sensor.time
       value_template: >-
+        {% set falsetrigger = states.sensor.time.state %}
         {% set nowtimestamp = now().timestamp() %} {{
         (nowtimestamp - as_timestamp(states.binary_sensor.door_contact_garage_double.last_changed)) >= 1800 and
         (nowtimestamp - as_timestamp(states.binary_sensor.door_contact_garage_single.last_changed)) >= 1800 and

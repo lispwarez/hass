@@ -199,6 +199,25 @@
 #
 #########################################
 - platform: mqtt
+  name: smart_plug_1_power
+  state_topic: "tele/plug1/SENSOR"
+  value_template: "{{ value_json['ENERGY']['Power'] }}"
+  json_attributes_topic: "tele/plug1/SENSOR"
+  json_attributes_template: "{{ value_json.ENERGY | tojson }}"
+  unit_of_measurement: "W"
+  device_class: power
+#
+- platform: mqtt
+  name: smart_plug_2_power
+  state_topic: "tele/plug2/SENSOR"
+  value_template: "{{ value_json['ENERGY']['Power'] }}"
+  json_attributes_topic: "tele/plug2/SENSOR"
+  json_attributes_template: "{{ value_json.ENERGY | tojson }}"
+  unit_of_measurement: "W"
+  device_class: power
+#
+#########################################
+- platform: mqtt
   name: prepaid_power_reading
   state_topic: "ha/e/power"
   unit_of_measurement: "Wh"

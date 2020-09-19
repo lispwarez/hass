@@ -1,6 +1,10 @@
 ﻿#
 request_hardware_status:
-  sequence: { service: mqtt.publish, data: { topic: "ha/c/gs", payload: "all" } }
+  sequence: 
+  - service: mqtt.publish
+    data: { topic: "ha/c/gs", payload: "all" }
+  - service: mqtt.publish
+    data: { topic: "cmnd/tasmotas/state", payload: "" }
 #
 restart_paradox:
   sequence: { service: shell_command.restart_paradox }
@@ -35,9 +39,15 @@ wakeup_radio:
   - condition: template
     value_template: "{{ is_state('input_boolean.enable_wakeup_radio', 'on') }}"
   - service: media_player.turn_on
+    entity_id: media_player.jbl_speaker
+  - service: media_player.volume_set
     data:
-      entity_id: media_player.jbl_speaker
-  - delay: '00:00:02'
+      entity_id: media_player.kitchen_speaker
+      volume_level: 0.35
+  - service: media_player.volume_set
+    data:
+      entity_id: media_player.bedroom
+      volume_level: 0.20
   - service: media_player.volume_set
     data:
       entity_id: media_player.jbl_speaker
@@ -47,17 +57,10 @@ wakeup_radio:
 stream_radio:
   sequence: 
   - service: media_player.play_media
-    data_template: 
-      entity_id: "{{ 'media_player.kitchen_speaker' if is_state('media_player.jbl_speaker','unavailable') else 'media_player.jbl_speaker' }}"
+    data: 
+      entity_id: media_player.music
       media_content_id: "http://20853.live.streamtheworld.com/KFM_SC?DIST=TuneIn&TGT=TuneIn&maxServers=2&ua=RadioTime&ttag=RadioTime"
       media_content_type: "audio/mp4"
-#
-sync_speaker_volume:
-  sequence:
-  - service: media_player.volume_set
-    data_template:
-      entity_id: media_player.kitchen_speaker
-      volume_level: "{{ states.media_player.jbl_speaker.attributes.volume_level }}"
 #
 send_message:
   sequence:
@@ -166,18 +169,9 @@ paradox_status_stay:
 paradox_status_disarm:
   sequence: { service: mqtt.publish, data: { topic: "Paradox/C/P1", payload: "Disarm" } }
 #
-paradox_set_alarm_mode:
-  sequence:
-  - delay: '00:00:02'
-  - condition: template
-    value_template: "{{ as_timestamp(now()) - as_timestamp(states.binary_sensor.paradox_output_3.last_changed) < 6 }}"
-  - service: input_boolean.turn_on
-    entity_id: input_boolean.alarm_mode_stay
-#
 paradox_alarm_notification:
   sequence:
-  - service: script.light_timer_garden
-  - delay: "{{ '00:00:02' if is_state('sun.sun', 'below_horizon') else '00:00' }}"
+  - delay: '00:00:02'
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_channel

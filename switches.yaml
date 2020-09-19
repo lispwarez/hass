@@ -14,6 +14,30 @@
   payload_off: "0"
   retain: True
 #
+- platform: mqtt
+  name: "Smart Plug 1"
+  command_topic: "cmnd/plug1/POWER"
+  state_topic: "stat/plug1/RESULT"
+  value_template: "{{ value_json.POWER }}"
+  payload_on: "ON"
+  payload_off: "OFF"
+  availability_topic: "tele/plug1/LWT"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  retain: True
+#
+- platform: mqtt
+  name: "Smart Plug 2"
+  command_topic: "cmnd/plug2/POWER"
+  state_topic: "stat/plug2/RESULT"
+  value_template: "{{ value_json.POWER }}"
+  payload_on: "ON"
+  payload_off: "OFF"
+  availability_topic: "tele/plug2/LWT"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  retain: True
+#
 #- platform: mqtt
 #  name: "alarm"
 #  command_topic: "Paradox/C/P1"

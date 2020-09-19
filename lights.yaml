@@ -41,6 +41,9 @@
   state_topic: "ha/s/r/rb1-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -49,6 +52,9 @@
   state_topic: "ha/s/r/rb1-2"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -57,6 +63,9 @@
   state_topic: "ha/s/r/rb1-3"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 #- platform: mqtt
@@ -65,6 +74,9 @@
 #  state_topic: "ha/s/r/rb1-4"
 #  payload_on: "1"
 #  payload_off: "0"
+#  availability_topic: "ha/s/lwt/rb1"
+#  payload_available: "online"
+#  payload_not_available: "offline"
 #  retain: True
 #
 - platform: mqtt
@@ -73,6 +85,9 @@
   state_topic: "ha/s/r/rb1-5"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -81,6 +96,9 @@
   state_topic: "ha/s/r/rb1-6"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -89,6 +107,9 @@
   state_topic: "ha/s/r/rb1-7"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb1"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 #- platform: mqtt
@@ -97,6 +118,9 @@
 #  state_topic: "ha/s/r/rb1-8"
 #  payload_on: "1"
 #  payload_off: "0"
+#  availability_topic: "ha/s/lwt/rb1"
+#  payload_available: "online"
+#  payload_not_available: "offline"
 #  retain: True
 #
 ################################################################################
@@ -106,6 +130,9 @@
   state_topic: "ha/s/r/rb2-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -114,6 +141,9 @@
   state_topic: "ha/s/r/rb2-2"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -122,6 +152,9 @@
   state_topic: "ha/s/r/rb2-3"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -130,6 +163,9 @@
   state_topic: "ha/s/r/rb2-4"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -138,6 +174,9 @@
   state_topic: "ha/s/r/rb2-5"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -146,6 +185,9 @@
   state_topic: "ha/s/r/rb2-6"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -154,6 +196,9 @@
   state_topic: "ha/s/r/rb2-7"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb2"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 #- platform: mqtt
@@ -161,7 +206,10 @@
 #  command_topic: "ha/c/r/rb2-8"
 #  state_topic: "ha/s/r/rb2-8"
 #  payload_on: "1"
-#  payload_off: "0"
+#  payload_off: "0
+#  availability_topic: "ha/s/lwt/rb2"
+#  payload_available: "online"
+#  payload_not_available: "offline"
 #  retain: True
 #
 ################################################################################
@@ -171,6 +219,9 @@
   state_topic: "ha/s/r/rb3-2"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb3"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -179,6 +230,9 @@
   state_topic: "ha/s/r/rb3-3"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb3"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -187,6 +241,9 @@
   state_topic: "ha/s/r/rb3-4"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb3"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -195,6 +252,9 @@
   state_topic: "ha/s/r/rb3-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb3"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -203,6 +263,9 @@
   state_topic: "ha/s/r/rb3-5"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/rb3"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 #- platform: mqtt
@@ -236,6 +299,9 @@
   state_topic: "ha/s/r/d04-2"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/d04"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 ################################################################################
@@ -245,6 +311,9 @@
   state_topic: "ha/s/r/d06-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/d06"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 ################################################################################

@@ -264,7 +264,7 @@ media_player.lounge_chromecast:
 media_player.lounge_samsung:
   friendly_name: Lounge TV
 media_player.kitchen_speaker:
-  friendly_name: Kitchen Home Mini
+  friendly_name: Kitchen Mini
 automation.send_image_on_motion_driveway:
   friendly_name: Line Crossing Driveway
   icon: mdi:telegram
@@ -276,3 +276,5 @@ automation.motion_in_driveway_ring_doorbell:
   icon: mdi:bell-ring-outline
 binary_sensor.poolpump_working_time:
   friendly_name: Pool Pump Working Time
+media_player.bedroom:
+  friendly_name: Bedroom Mini
