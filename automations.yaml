@@ -7,9 +7,6 @@
   action:
   - service: script.request_hardware_status
   - service: script.axpert_query_piri
-#  - service: frontend.set_theme
-#    data:
-#      name: midnight2
 #
 - alias: new_day_resets
   initial_state: true
@@ -29,7 +26,7 @@
   trigger:
     platform: time_pattern
     minutes: 59
-    seconds: 55
+    seconds: 56
   action:
   - service: mqtt.publish
     data_template:
@@ -71,15 +68,15 @@
   - service: media_player.turn_off
     entity_id: media_player.jbl_speaker
   - service: media_player.turn_off
-    entity_id: media_player.kitchen_speaker
+    entity_id: media_player.kitchen_mini
   - service: media_player.turn_off
-    entity_id: media_player.bedroom
+    entity_id: media_player.bedroom_mini
   - service: media_player.turn_off
     entity_id: media_player.lounge_chromecast
   - service: media_player.turn_off
     entity_id: media_player.lounge_samsung
   - service: media_player.turn_off
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
 #
 - alias: play_radio_when_arriving_home
   initial_state: true
@@ -173,7 +170,7 @@
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     to: "playing"
   condition:
   - condition: state
@@ -196,7 +193,7 @@
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     from: "playing"
   condition:
   - condition: state
@@ -215,26 +212,51 @@
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     to: "playing"
   condition:
   - condition: template
-    value_template: "{{ is_state('media_player.jbl_speaker', 'playing') or is_state('media_player.kitchen_speaker', 'playing') or is_state('media_player.bedroom', 'playing') }}"
+    value_template: "{{ is_state('media_player.jbl_speaker', 'playing') or is_state('media_player.kitchen_mini', 'playing') or is_state('media_player.bedroom_mini', 'playing') }}"
   action:
   - service: media_player.turn_off
-    entity_id: media_player.kitchen_speaker
+    entity_id: media_player.kitchen_mini
   - service: media_player.turn_off
-    entity_id: media_player.bedroom
+    entity_id: media_player.bedroom_mini
   - service: media_player.turn_off
     entity_id: media_player.jbl_speaker
   - service: media_player.turn_off
     entity_id: media_player.lounge_chromecast
 #
+#- alias: kodi_request_turn_on
+#  initial_state: true
+#  trigger:
+#  - platform: device
+#    domain: kodi
+#    entity_id: media_player.kodi
+#    type: turn_on
+#  action:
+#  - service: wake_on_lan.send_magic_packet
+#    data:
+#      mac: 50-46-5d-50-56-40
+#      broadcast_address: 192.168.25.255
+#
+#- alias: kodi_request_turn_off
+#  trigger:
+#  - platform: device
+#    domain: kodi
+#    entity_id: media_player.kodi
+#    type: turn_off
+#  action:
+#  - service: kodi.call_method
+#    data:
+#      entity_id: media_player.kodi
+#      method: System.Shutdown
+#
 - alias: kodi_turned_on
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     from: "off"
   condition:
   - condition: state
@@ -248,7 +270,7 @@
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     to: "off"
   condition:
   - condition: template
@@ -298,7 +320,7 @@
     - sensor.node_up_dev05
     - sensor.node_up_dev06
     - sensor.node_up_dev09
-    to: "unknown"
+    to: "unavailable"
   condition:
   - condition: state
     entity_id: binary_sensor.telegram_notifications
@@ -328,7 +350,7 @@
     - sensor.node_up_dev05
     - sensor.node_up_dev06
     - sensor.node_up_dev09
-    from: "unknown"
+    from: "unavailable"
   condition:
   - condition: state
     entity_id: binary_sensor.telegram_notifications
@@ -1069,8 +1091,10 @@
 - alias: morning_wakeup_alarm
   initial_state: true
   trigger:
-  - platform: template
-    value_template: "{{ states('sensor.time') == states('input_datetime.morning_wakeup_time')[0:5] }}"
+  - platform: time
+    at: input_datetime.morning_wakeup_time
+#  - platform: template
+#    value_template: "{{ states('sensor.time') == states('input_datetime.morning_wakeup_time')[0:5] }}"
   condition:
   - condition: template
     value_template: "{{ (is_state('input_boolean.enable_wakeup_workdays', 'on') and is_state('binary_sensor.workday_sensor', 'on')) or is_state('input_boolean.enable_wakeup_workdays', 'off') }}"
@@ -1189,8 +1213,10 @@
 #
 - alias: geyser_on_from_set_time
   trigger:
-  - platform: template
-    value_template: "{{ states('sensor.time') == states('input_datetime.geyser_on_time')[0:5] }}"
+  - platform: time
+    at: input_datetime.geyser_on_time
+#  - platform: template
+#    value_template: "{{ states('sensor.time') == states('input_datetime.geyser_on_time')[0:5] }}"
   condition:
   - condition: template
     value_template: "{{ (is_state('input_boolean.timer_geyser_workdays', 'on') and is_state('binary_sensor.workday_sensor', 'on')) or is_state('input_boolean.timer_geyser_workdays', 'off') }}"
@@ -1226,7 +1252,7 @@
   - service: shell_command.kodi_pip_driveway
   - service: media_player.play_media
     data:
-      entity_id: media_player.kitchen_speaker
+      entity_id: media_player.kitchen_mini
       media_content_id: 'http://192.168.25.5/doorbell.mp3'
       media_content_type: music
 #
@@ -1243,7 +1269,7 @@
     state: "on"
   action:
     service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "Sunrise will be at {{ as_timestamp(states.sun.sun.attributes.next_rising)|timestamp_custom('%H:%M') }}"
       disable_notification: true
@@ -1294,7 +1320,7 @@
       - "Charge Grid:/chargegrid, Charge Solar First:/chargesolarfirst"
       - "Charge Both:/chargeboth, Charge Solar Only:/chargesolaronly"
       - "Arm:/alarm_arm, Stay:/alarm_stay, Disarm:/alarm_off"
-      - "Garage Open:/garage_open, Garage Close:/garage_close"
+      - "Garage Auto-Open:/garage_open, Garage Auto-Close:/garage_close"
       - "Status:/status, Cancel:/cancel"
 #
 - alias: telegram_bot_garage_open

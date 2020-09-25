@@ -4,6 +4,9 @@
   state_topic: "ha/s/r/d03-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/d03"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -12,6 +15,9 @@
   state_topic: "ha/s/r/d04-1"
   payload_on: "1"
   payload_off: "0"
+  availability_topic: "ha/s/lwt/d04"
+  payload_available: "online"
+  payload_not_available: "offline"
   retain: True
 #
 - platform: mqtt
@@ -37,14 +43,4 @@
   payload_available: "Online"
   payload_not_available: "Offline"
   retain: True
-#
-#- platform: mqtt
-#  name: "alarm"
-#  command_topic: "Paradox/C/P1"
-#  state_topic: "ha/e/s/d05-3"
-#  payload_on: "Stay"
-#  payload_off: "Disarm"
-#  state_on: "1"
-#  state_off: "0"
-#  retain: false
 #

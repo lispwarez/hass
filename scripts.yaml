@@ -42,11 +42,11 @@ wakeup_radio:
     entity_id: media_player.jbl_speaker
   - service: media_player.volume_set
     data:
-      entity_id: media_player.kitchen_speaker
+      entity_id: media_player.kitchen_mini
       volume_level: 0.35
   - service: media_player.volume_set
     data:
-      entity_id: media_player.bedroom
+      entity_id: media_player.bedroom_mini
       volume_level: 0.20
   - service: media_player.volume_set
     data:
@@ -68,7 +68,7 @@ send_message:
     data_template:
       message: "{{ message }}"
   - condition: template
-    value_template: "{{ not is_state('media_player.kodi_lounge', 'playing') }}"
+    value_template: "{{ not is_state('media_player.kodi', 'playing') }}"
   - service: telegram_bot.send_message
     data_template:
       target: "{{ target }}"
@@ -78,7 +78,7 @@ send_message:
 send_message_kodi:
   sequence:
   - condition: state
-    entity_id: media_player.kodi_lounge
+    entity_id: media_player.kodi
     state: playing
   - service: notify.kodi_lounge
     data_template:

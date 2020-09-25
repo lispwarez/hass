@@ -30,6 +30,7 @@ sun:
 system_health:
 updater:
 map:
+media_source:
 #
 shell_command:
   power_reading: "/etc/homeassistant/shell_scripts/sql_power.sh {{ reading }}"
@@ -105,7 +106,7 @@ notify: !include notify.yaml
 timer: !include timer.yaml
 
 camera: !include cameras.yaml
-media_player: !include media_players.yaml
+#media_player: !include media_players.yaml
 google_assistant: !include google_assistant.yaml
 
 recorder: !include recorder.yaml

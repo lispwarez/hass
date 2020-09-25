@@ -10,6 +10,6 @@
     turn_off_action:
     - service: kodi.call_method
       data:
-        entity_id: media_player.kodi_lounge
+        entity_id: media_player.kodi
         method: System.Shutdown
 #

@@ -33,6 +33,7 @@
     - sensor.house_humidity
     - sensor.house_pressure
     - sensor.myip
+    - sensor.node_up_irb
     - sensor.node_up_dev01
     - sensor.node_up_dev02
     - sensor.node_up_dev03

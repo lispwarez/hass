@@ -4,16 +4,6 @@
   hosts: 
     pc_dump: 192.168.25.101
 #
-# PC Kodi MCE
-- platform: nmap_tracker
-  home_interval: 1
-  hosts: 192.168.25.10
-#
-# TV Samsung
-- platform: nmap_tracker
-  home_interval: 1
-  hosts: 192.168.25.14
-#
 # Inverter PI
 - platform: nmap_tracker
   home_interval: 5
