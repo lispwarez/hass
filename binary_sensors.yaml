@@ -8,7 +8,7 @@
       value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and states('sensor.uptime') | int > 1 }}"
     someone_home:
       value_template: "{{ is_state('group.tracked_things', 'home') or is_state('input_boolean.someone_home_forced', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
-#      icon_template: "mdi:numeric-{{states|selectattr('entity_id','in',state_attr('group.tracked_things','entity_id'))|selectattr('state','eq','home')|list|count}}-box-outline"
+      icon_template: "mdi:numeric-{{ states.person|selectattr('state','eq','home')|list|count}}-box-outline"
     doors_open_when_armed:
       value_template: "{{ is_state('binary_sensor.alarm_status', 'on') and (is_state('binary_sensor.door_contact_garage_double', 'on') or is_state('binary_sensor.door_contact_garage_single', 'on')) }}"
       device_class: problem

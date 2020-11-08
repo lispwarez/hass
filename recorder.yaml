@@ -1,5 +1,5 @@
   db_url: !secret mysql_db_url
-  purge_keep_days: 360
+  purge_keep_days: 90
   exclude:
     domains:
     - sun
@@ -17,7 +17,6 @@
     - input_boolean
     - input_datetime
     entities:
-# - {{ states.device_tracker | list | map(attribute='entity_id') | join('\n- ') }}
 
     - sensor.axpert_charge_source
     - sensor.axpert_heatsinktemp
@@ -96,13 +95,18 @@
     - binary_sensor.workday_sensor
     - binary_sensor.zones_idle
 
+# - {{ states.device_tracker | list | map(attribute='entity_id') | join('\n- ') }}
+
     - device_tracker.android_2df998f6d0c3d620
     - device_tracker.android_34765e9b8ae60fbb
     - device_tracker.blah_0760
     - device_tracker.camera_garage
     - device_tracker.camera_inside
     - device_tracker.chromecast
-    - device_tracker.google_home_mini
+    - device_tracker.bedroom_mini
+    - device_tracker.kitchen_mini
+    - device_tracker.dev32
+    - device_tracker.iot_d01_e5ec2e
     - device_tracker.iot_d02_167243
     - device_tracker.iot_d03_07162e
     - device_tracker.iot_d04_06607b
@@ -115,14 +119,14 @@
     - device_tracker.iot_sw2_d3af73
     - device_tracker.iot_sw3_1719df
     - device_tracker.jbl_speaker
+    - device_tracker.slim
     - device_tracker.pc_dump
-    - device_tracker.pc_kodi
     - device_tracker.pc_nas_lan1
     - device_tracker.pc_nas_lan2
     - device_tracker.pi_inverter
-    - device_tracker.roof_ap
     - device_tracker.sonoff_6123
-    - device_tracker.tv_samsung
+    - device_tracker.plug_1
+    - device_tracker.plug_2
     
     - light.outside
     - light.house_lights

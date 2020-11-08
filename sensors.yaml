@@ -36,10 +36,10 @@
       value_template: "{{ (states('sensor.poolpump_duration') | float * 60) | round(0) }}"
       unit_of_measurement: "minutes"
     poolpump_duration_now:
-      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.pool_pump.last_changed) + 10) / 60) | int if is_state('switch.pool_pump', 'on') else 0 }}"
+      value_template: "{{ ((now().timestamp() - as_timestamp(states.switch.pool_pump.last_changed)) / 60) | int if is_state('switch.pool_pump', 'on') else 0 }}"
       unit_of_measurement: "minutes"
     geyser_duration_now:
-      value_template: "{{ ((as_timestamp(states.sensor.time.last_changed) - as_timestamp(states.switch.geyser.last_changed) + 10) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
+      value_template: "{{ ((now().timestamp() - as_timestamp(states.switch.geyser.last_changed)) / 60) | int if is_state('switch.geyser', 'on') else 0 }}"
       unit_of_measurement: "minutes"
     axpert_charge_w:
       value_template: "{{ (states('sensor.axpert_battchargea') | int * states('sensor.axpert_sccbattv') | float) | round(0) }}"

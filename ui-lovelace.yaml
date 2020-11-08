@@ -17,6 +17,12 @@ views:
           {% endif %} }
         type: entity
       - cards:
+          - card:
+              type: shopping-list
+            conditions:
+              - entity: person.lispwarez
+                state: Checkers Hyper
+            type: conditional
           - columns: 4
             entities:
               - entity: binary_sensor.power_warning
@@ -35,12 +41,12 @@ views:
                 name: Zones
               - entity: binary_sensor.someone_home
                 name: Home
-              - entity: binary_sensor.axpert_status
-                name: Inverter
               - entity: binary_sensor.door_contact_garage_double
                 name: Double
               - entity: binary_sensor.door_contact_garage_single
                 name: Single
+              - entity: binary_sensor.axpert_status
+                name: Inverter
               - entity: input_boolean.bedtime_mode
                 name: Bedtime
                 style: >
@@ -127,6 +133,12 @@ views:
               - entity: switch.geyser
                 tap_action:
                   action: toggle
+              - entity: switch.smart_plug_1
+                tap_action:
+                  action: toggle
+              - entity: switch.smart_plug_2
+                tap_action:
+                  action: toggle
             show_empty: false
             state_filter:
               - 'on'
@@ -139,24 +151,31 @@ views:
                 state: playing
             type: conditional
           - card:
-              entity: media_player.kodi_lounge
+              entity: media_player.kodi
               type: 'custom:mini-media-player'
             conditions:
-              - entity: media_player.kodi_lounge
+              - entity: media_player.kodi
                 state: playing
             type: conditional
           - card:
-              entity: media_player.kitchen_speaker
+              entity: media_player.kitchen_mini
               type: 'custom:mini-media-player'
             conditions:
-              - entity: media_player.kitchen_speaker
+              - entity: media_player.kitchen_mini
                 state: playing
             type: conditional
           - card:
-              entity: media_player.living_room_tv
+              entity: media_player.bedroom_mini
               type: 'custom:mini-media-player'
             conditions:
-              - entity: media_player.living_room_tv
+              - entity: media_player.bedroom_mini
+                state: playing
+            type: conditional
+          - card:
+              entity: media_player.lounge_chromecast
+              type: 'custom:mini-media-player'
+            conditions:
+              - entity: media_player.lounge_chromecast
                 state: playing
             type: conditional
         type: vertical-stack
@@ -306,6 +325,10 @@ views:
             positions:
               icon: 'off'
               indicator: 'off'
+            severity:
+              - from: 0
+                hide: true
+                to: 0
             type: 'custom:bar-card'
           - entity: sensor.axpert_outw
             entity_row: true
@@ -349,7 +372,6 @@ views:
           - type: divider
           - sensor.axpert_pvv
           - sensor.axpert_pva
-          - sensor.axpert_pvva
           - type: divider
           - sensor.axpert_battv
           - sensor.axpert_battp
@@ -402,6 +424,13 @@ views:
             name: Restart Axpert Service
         show_header_toggle: false
         title: Inverter Tasks
+        type: entities
+      - entities:
+          - entity: sensor.smart_plug_1_power
+            name: Smart Plug 1
+          - entity: sensor.smart_plug_2_power
+            name: Smart Plug 2
+        show_header_toggle: false
         type: entities
     icon: 'mdi:flash'
     title: Solar Power
@@ -520,6 +549,12 @@ views:
           - entity: switch.pool_pump
             tap_action:
               action: toggle
+          - entity: switch.smart_plug_1
+            tap_action:
+              action: toggle
+          - entity: switch.smart_plug_2
+            tap_action:
+              action: toggle
         show_state: false
         title: Switches
         type: glance
@@ -530,9 +565,6 @@ views:
       - entities:
           - entity: input_boolean.enable_tv_mode
             icon: 'mdi:television-classic'
-          - entity: script.sync_speaker_volume
-            icon: 'mdi:volume-high'
-            name: Sync Mini Volume
           - entity: script.stream_radio
             icon: 'mdi:radio'
             name: Play KFM
@@ -544,25 +576,31 @@ views:
             name: Living Room TV Power
         show_header_toggle: false
         type: entities
-      - entity: media_player.kodi_lounge
+      - entity: media_player.kodi
         type: 'custom:mini-media-player'
-      - entity: media_player.living_room_tv
+      - entity: media_player.lounge_samsung
+        type: 'custom:mini-media-player'
+      - entity: media_player.lounge_chromecast
+        type: 'custom:mini-media-player'
+      - entity: media_player.kitchen_mini
+        type: 'custom:mini-media-player'
+      - entity: media_player.bedroom_mini
         type: 'custom:mini-media-player'
       - entity: media_player.jbl_speaker
-        type: 'custom:mini-media-player'
-      - entity: media_player.kitchen_speaker
         type: 'custom:mini-media-player'
     icon: 'mdi:kodi'
     id: media
     title: Media Devices
   - cards:
+      - entity: weather.openweathermap
+        type: weather-forecast
       - entities:
           - entity: sun.sun
             secondary_info: last-changed
           - type: divider
-          - sensor.house_temperature
-          - sensor.house_humidity
-          - sensor.house_pressure
+          - sensor.lounge_temperature
+          - sensor.lounge_humidity
+          - sensor.lounge_pressure
           - type: divider
           - sensor.garage_temperature
           - sensor.garage_humidity
@@ -574,11 +612,10 @@ views:
         show_header_toggle: false
         title: Weather Sensors
         type: entities
-      - entity: weather.openweathermap
-        type: weather-forecast
       - entities:
           - entity: person.lispwarez
             secondary_info: last-changed
+          - entity: device_tracker.pc_dump
           - entity: device_tracker.pi_inverter
           - entity: device_tracker.pc_kodi
           - entity: device_tracker.tv_samsung
@@ -609,6 +646,7 @@ views:
           exclude:
             - state: '>= 0'
             - entity_id: sensor.node_up_sw04
+            - entity_id: sensor.node_up_dev01
             - entity_id: sensor.node_up_dev09
           include:
             - entity_id: sensor.node_up_*
@@ -626,7 +664,7 @@ views:
               type: 'custom:fold-entity-row'
             filter:
               include:
-                - group: group.nodes_uptime
+                - entity_id: sensor.node_up_*
             type: 'custom:auto-entities'
         show_header_toggle: false
         type: entities
@@ -645,13 +683,23 @@ views:
   - cards:
       - entities:
           - entity: input_boolean.notification_telegram
-          - entity: input_boolean.notification_linecrossing_driveway
-          - entity: input_boolean.notification_linecrossing_garden
+          - entity: automation.send_image_on_motion_driveway
+          - entity: automation.send_image_on_motion_garden
+          - entity: automation.motion_in_driveway_ring_doorbell
           - entity: input_boolean.someone_home_forced
           - entity: automation.paradox_auto_set_alarm
           - entity: script.restart_paradox
             icon: 'mdi:ssh'
         show_header_toggle: false
+        type: entities
+      - entities:
+          - entity: automation.pool_pump_on_for_conditions
+          - entity: input_boolean.pool_override
+          - entity: sensor.poolpump_duration_today
+          - entity: switch.pool_pump
+          - entity: binary_sensor.poolpump_working_time
+        show_header_toggle: false
+        title: Pool Pump Timer
         type: entities
       - entities:
           - entity: automation.geyser_on_from_set_time
@@ -662,15 +710,6 @@ views:
           - entity: switch.geyser
         show_header_toggle: false
         title: Geyser Timer
-        type: entities
-      - entities:
-          - entity: automation.pool_pump_on_for_conditions
-          - entity: input_boolean.pool_override
-          - entity: input_datetime.poolpump_on_time
-          - entity: sensor.poolpump_duration_today
-          - entity: switch.pool_pump
-        show_header_toggle: false
-        title: Pool Pump Timer
         type: entities
       - entities:
           - entity: input_boolean.enable_wakeup_light
@@ -746,9 +785,6 @@ views:
               type: section
             padding: 1
             type: 'custom:fold-entity-row'
-        show_header_toggle: false
-        type: entities
-      - entities:
           - entities:
               - entity: script.request_hardware_status
               - entity: script.node_restart_all
@@ -787,6 +823,6 @@ views:
             type: 'custom:fold-entity-row'
         show_header_toggle: false
         type: entities
-    icon: 'mdi:settings'
+    icon: 'mdi:cog'
     id: options
     title: Settings

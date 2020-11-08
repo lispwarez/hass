@@ -24,6 +24,13 @@ send_ir_04:
       topic: "cmnd/blah/IRsend"
       payload: '{"Protocol":"SAMSUNG","Bits":32,"Data":"0xE0E040BF"}'
 #
+wol_kodi:
+  sequence: 
+  - service: wake_on_lan.send_magic_packet
+    data:
+      mac: 50-46-5d-50-56-40
+      broadcast_address: 192.168.25.255
+#
 update_speedtest:
   sequence: { service: speedtestdotnet.speedtest }
 #
@@ -171,11 +178,15 @@ paradox_status_disarm:
 #
 paradox_alarm_notification:
   sequence:
-  - delay: '00:00:02'
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_channel
-      message: "*{{ message }}* \nMotion detected in these zones: {%- for item in states.binary_sensor -%}{%- if 'paradox_zone' in item.entity_id and (as_timestamp(now()) - as_timestamp(item.last_changed)) < 120 %}\n{{ item.name }}{% endif %}{%- endfor -%}"
+      message: "*{{ message }}*"
+  - delay: '00:00:04'
+  - service: telegram_bot.send_message
+    data_template:
+      target: !secret telegram_channel
+      message: "Motion detected in these zones: {%- for item in states.binary_sensor -%}{%- if 'paradox_zone' in item.entity_id and (as_timestamp(now()) - as_timestamp(item.last_changed)) < 120 %}\n{{ item.name }}{% endif %}{%- endfor -%}"
   - service: logbook.log
     data_template:
       name: "{{ message }}"

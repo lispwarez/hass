@@ -26,7 +26,7 @@
   trigger:
     platform: time_pattern
     minutes: 59
-    seconds: 56
+    seconds: 58
   action:
   - service: mqtt.publish
     data_template:
@@ -36,13 +36,6 @@
     data_template:
       topic: "ha/internal/stats_power_solar_hourly"
       payload: "{{ state_attr('sensor.axpert_power_solar', now().hour|string)|round(2) }}"
-#
-- alias: end_of_day_actions
-  initial_state: true
-  trigger:
-    platform: time
-    at: "23:59:58"
-  action:
   - service: mqtt.publish
     data_template:
       topic: "ha/internal/stats_poolpump_duration"
@@ -56,6 +49,7 @@
       topic: "ha/internal/stats_power_solar"
       payload: "{{ states('sensor.axpert_power_solar') }}"
 #
+#
 ################################################
 #
 - alias: not_home_turn_things_off
@@ -66,17 +60,8 @@
     to: "off"
   action:
   - service: media_player.turn_off
-    entity_id: media_player.jbl_speaker
-  - service: media_player.turn_off
-    entity_id: media_player.kitchen_mini
-  - service: media_player.turn_off
-    entity_id: media_player.bedroom_mini
-  - service: media_player.turn_off
-    entity_id: media_player.lounge_chromecast
-  - service: media_player.turn_off
-    entity_id: media_player.lounge_samsung
-  - service: media_player.turn_off
-    entity_id: media_player.kodi
+    data:
+      entity_id: "{{ states.media_player|list|rejectattr('state','in',['off','unavailable'])|map(attribute='entity_id')| join(', ') }}"
 #
 - alias: play_radio_when_arriving_home
   initial_state: true
@@ -97,9 +82,9 @@
     to: "on"
   action:
   - service: homeassistant.turn_off
-    data_template:
+    data:
       entity_id: >
-        {% set ignored_entities = ['light.house_lights','light.outside','light.front_door','switch.smart_plug_1','switch.smart_plug_2'] %}
+        {% set ignored_entities = ['light.house_lights','light.outside','light.front_door','switch.smart_plug_2'] %}
         {{ (states.light|list + states.switch|list + states.media_player|list) | rejectattr('state','in',['off','idle','unavailable']) | map(attribute='entity_id') | reject('in',ignored_entities) | join(', ') }}
 #
 - alias: bedtime_disable
@@ -156,9 +141,8 @@
     below: 48
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') and as_timestamp(now()) - as_timestamp(states.automation.speedtest_results.last_changed) > 10 }}"
+    value_template: "{{ is_state('binary_sensor.telegram_notifications', 'on') }}"
   action:
-  - delay: '00:00:02'
   - service: telegram_bot.send_message
     data_template:
       target: !secret telegram_userid_1
@@ -166,47 +150,74 @@
 #
 ################################################
 #
-- alias: tv_mode_play
+- alias: kodi_request_turn_on
   initial_state: true
   trigger:
-  - platform: state
+  - platform: device
+    device_id: 6a31e755fb1b11eaa7cac1c45adb908c
+    domain: kodi
     entity_id: media_player.kodi
-    to: "playing"
-  condition:
-  - condition: state
-    entity_id: sun.sun
-    state: "below_horizon"
-  - condition: state
-    entity_id: input_boolean.enable_tv_mode
-    state: "on"
+    type: turn_on
   action:
-  - service: light.turn_on
-    entity_id: light.dining_room
-  - service: light.turn_off
-    entity_id: light.scullary
-  - service: light.turn_off
-    entity_id: light.kitchen
-  - service: light.turn_off
-    entity_id: light.kitchen_downlights
+  - service: script.wol_kodi
 #
-- alias: tv_mode_idle
+- alias: kodi_request_turn_off
+  trigger:
+  - platform: device
+    device_id: 6a31e755fb1b11eaa7cac1c45adb908c
+    domain: kodi
+    entity_id: media_player.kodi
+    type: turn_off
+  action:
+  - service: kodi.call_method
+    data:
+      entity_id: media_player.kodi
+      method: System.Shutdown
+#
+- alias: lounge_samsung_turned_on
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi
-    from: "playing"
+    entity_id: media_player.lounge_samsung
+    to: "on"
   condition:
   - condition: state
-    entity_id: sun.sun
-    state: "below_horizon"
+    entity_id: input_boolean.bedtime_mode
+    state: "off"
   - condition: state
-    entity_id: input_boolean.enable_tv_mode
-    state: "on"
+    entity_id: switch.smart_plug_1
+    state: "off"
   action:
-  - service: light.turn_off
-    entity_id: light.dining_room
-  - service: light.turn_on
-    entity_id: light.kitchen_downlights
+  - service: switch.turn_on
+    entity_id: switch.smart_plug_1
+#
+- alias: media_players_video_turned_on
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: 
+    - media_player.kodi
+    - media_player.lounge_chromecast
+  condition:
+  - condition: template
+    value_template: "{{ trigger.from_state.state in ['off','unavailable'] and trigger.to_state.state not in ['off','unavailable'] }}"
+  - condition: state
+    entity_id: media_player.lounge_samsung
+    state: "off"
+  action:
+  - service: script.send_ir_04
+#
+- alias: media_players_video_turned_off
+  initial_state: true
+  trigger:
+  - platform: template
+    value_template: "{{ states('media_player.kodi') in ['off','unavailable'] and states('media_player.lounge_chromecast') in ['off','unavailable'] }}"
+    for: '00:05:00'
+  action:
+  - service: media_player.turn_off
+    entity_id: media_player.lounge_samsung
+  - service: switch.turn_off
+    entity_id: switch.smart_plug_1
 #
 - alias: kodi_playing_stop_other_players
   initial_state: true
@@ -214,9 +225,6 @@
   - platform: state
     entity_id: media_player.kodi
     to: "playing"
-  condition:
-  - condition: template
-    value_template: "{{ is_state('media_player.jbl_speaker', 'playing') or is_state('media_player.kitchen_mini', 'playing') or is_state('media_player.bedroom_mini', 'playing') }}"
   action:
   - service: media_player.turn_off
     entity_id: media_player.kitchen_mini
@@ -227,58 +235,22 @@
   - service: media_player.turn_off
     entity_id: media_player.lounge_chromecast
 #
-#- alias: kodi_request_turn_on
-#  initial_state: true
-#  trigger:
-#  - platform: device
-#    domain: kodi
-#    entity_id: media_player.kodi
-#    type: turn_on
-#  action:
-#  - service: wake_on_lan.send_magic_packet
-#    data:
-#      mac: 50-46-5d-50-56-40
-#      broadcast_address: 192.168.25.255
-#
-#- alias: kodi_request_turn_off
-#  trigger:
-#  - platform: device
-#    domain: kodi
-#    entity_id: media_player.kodi
-#    type: turn_off
-#  action:
-#  - service: kodi.call_method
-#    data:
-#      entity_id: media_player.kodi
-#      method: System.Shutdown
-#
-- alias: kodi_turned_on
+- alias: chromecast_playing_stop_other_players
   initial_state: true
   trigger:
   - platform: state
-    entity_id: media_player.kodi
-    from: "off"
-  condition:
-  - condition: state
-    entity_id: media_player.lounge_samsung
-    state: "off"
+    entity_id: media_player.lounge_chromecast
+    to: "playing"
   action:
-  - service: script.send_ir_03
-  - service: script.send_ir_04
-#
-- alias: kodi_turned_off
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: media_player.kodi
-    to: "off"
-  condition:
-  - condition: template
-    value_template: "{{ not is_state('media_player.lounge_samsung', 'playing') and not is_state('media_player.lounge_chromecast', 'playing') }}"
-  action:
-  - service: script.send_ir_03
   - service: media_player.turn_off
-    entity_id: media_player.lounge_samsung
+    entity_id: media_player.kitchen_mini
+  - service: media_player.turn_off
+    entity_id: media_player.bedroom_mini
+  - service: media_player.turn_off
+    entity_id: media_player.jbl_speaker
+  - service: media_player.turn_off
+    entity_id: media_player.kodi
+#
 #########################################################################################################
 ################### Device Tracking ######################
 - alias: new_device_found_on_wifi
@@ -292,12 +264,12 @@
     state: "on"
   action:
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "New device found on the network Hostname: {{trigger.event.data.host_name}} <br /> Entity: {{trigger.event.data.entity_id}} <br /> MAC: {{ trigger.event.data.mac }}"
       parse_mode: html
   - service: persistent_notification.create
-    data_template:
+    data:
       title: "Device Tracker Found New Device"
       message: "Hostname: {{trigger.event.data.host_name}} \n Entity: {{trigger.event.data.entity_id}} \n MAC: {{ trigger.event.data.mac }}"
 #
@@ -327,7 +299,7 @@
     state: "on"
   action:
     service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
       message: "{{ trigger.from_state.attributes.friendly_name }} has gone offline after {{ trigger.from_state.state }} minutes"
 #
@@ -385,7 +357,7 @@
   trigger:
   - platform: state
     entity_id: sensor.axpert_outw
-    to: "unknown"
+    to: "unavailable"
   condition:
   - condition: state
     entity_id: binary_sensor.telegram_notifications
@@ -611,9 +583,8 @@
     entity_id: binary_sensor.poolpump_working_time
     to: "on"
   condition:
-  - condition: state
-    entity_id: automation.pool_pump_on_for_conditions
-    state: "off"
+  - condition: template
+    value_template: "{{ is_state('automation.pool_pump_on_for_conditions', 'off') or is_state('automation.axpert_change_to_solar', 'off') }}"
   - condition: state
     entity_id: binary_sensor.telegram_notifications
     state: "on"
@@ -660,28 +631,12 @@
     entity_id: binary_sensor.axpert_has_solar
     to: "off"
   - platform: state
-    entity_id: sensor.axpert_pvw
-    to: "0"
-  - platform: state
     entity_id: binary_sensor.axpert_output_source_is_grid
     to: "on"
     for: 00:00:05
-  condition:
-  - condition: template
-    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "No longer on solar power"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: pool_pump_off_if_conditions_2
-  initial_state: true
-  trigger:
+  - platform: numeric_state
+    entity_id: sensor.axpert_pvw
+    below: 10
   - platform: numeric_state
     entity_id: sensor.axpert_outw
     above: 1800
@@ -689,20 +644,17 @@
   - platform: template
     value_template: "{{ states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
     for: 00:00:30
+  - platform: template
+    value_template: "{{ states('sensor.axpert_battdischargea') | int > 0 }}"
+    for: 00:00:30
   condition:
   - condition: template
     value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
   action:
   - service: switch.turn_off
     entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Power usage too high"
-      entity_id: switch.pool_pump
-      domain: switch
 #
-- alias: pool_pump_off_if_conditions_3
+- alias: pool_pump_off_if_conditions_2
   initial_state: true
   trigger:
   - platform: template
@@ -713,31 +665,6 @@
   action:
   - service: switch.turn_off
     entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Solar below 800"
-      entity_id: switch.pool_pump
-      domain: switch
-#
-- alias: pool_pump_off_if_conditions_4
-  initial_state: true
-  trigger:
-  - platform: template
-    value_template: "{{ states('sensor.axpert_battdischargea') | int > 0 }}"
-    for: 00:00:30
-  condition:
-  - condition: template
-    value_template: "{{ is_state('switch.pool_pump', 'on') and is_state('input_boolean.pool_override', 'off') }}"
-  action:
-  - service: switch.turn_off
-    entity_id: switch.pool_pump
-  - service: logbook.log
-    data:
-      name: "Pool Pump Off"
-      message: "Using battery too long"
-      entity_id: switch.pool_pump
-      domain: switch
 #
 - alias: pool_light_off_by_timer
   initial_state: true
@@ -793,16 +720,17 @@
   initial_state: true
   trigger:
   - platform: state
-    entity_id: binary_sensor.alarm_status
+    entity_id: sensor.alarm_arm_mode
+    for: 00:00:01
   condition:
   - condition: state
     entity_id: binary_sensor.telegram_notifications
     state: "on"
   action:
   - service: telegram_bot.send_message
-    data_template:
+    data:
       target: !secret telegram_userid_1
-      message: "*Alarm status:* {%- if is_state('binary_sensor.alarm_status', 'on') %} Armed {%- else %} Disarmed {%- endif %}"
+      message: "*Alarm status:* {{ states('sensor.alarm_arm_mode') }}"
 #
 - alias: notify_alarm_armed_while_door_open
   initial_state: true
@@ -873,7 +801,7 @@
   action:
   - service: script.light_timer_garden
   - service: shell_command.kodi_pip_garden
-  - delay: "{{ '00:00:02' if is_state('sun.sun', 'below_horizon') else '00:00' }}"
+  - delay: "{{ '00:00:02' if is_state('sun.sun', 'below_horizon') else '00:00:00' }}"
   - service: telegram_bot.send_photo
     data:
       target: !secret telegram_userid_1
@@ -956,8 +884,9 @@
     entity_id: input_boolean.garage_auto_opener
     to: "on"
   condition:
-  - condition: template
-    value_template: "{{ is_state('input_boolean.garage_auto_opener', 'on') and (as_timestamp(now()) - as_timestamp(states.binary_sensor.driveway_line_crossing.last_changed)) < 60 }}"
+  - condition: state
+    entity_id: input_boolean.garage_auto_opener
+    state: "on"
   action:
   - service: script.garage_open_after_disarm_alarm
 #
@@ -1064,7 +993,7 @@
 #
 ################################################
 #
-- alias: someone_got_home_turn_on_lights
+- alias: someone_came_home_turn_on_lights
   initial_state: true
   trigger:
   - platform: state
@@ -1093,8 +1022,6 @@
   trigger:
   - platform: time
     at: input_datetime.morning_wakeup_time
-#  - platform: template
-#    value_template: "{{ states('sensor.time') == states('input_datetime.morning_wakeup_time')[0:5] }}"
   condition:
   - condition: template
     value_template: "{{ (is_state('input_boolean.enable_wakeup_workdays', 'on') and is_state('binary_sensor.workday_sensor', 'on')) or is_state('input_boolean.enable_wakeup_workdays', 'off') }}"
@@ -1109,9 +1036,8 @@
 - alias: outside_lights_on_at_night
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sun.sun
-    to: "below_horizon"
+    platform: sun
+    event: sunset
   action:
   - service: light.turn_on
     entity_id: light.front_door
@@ -1119,9 +1045,8 @@
 - alias: outside_lights_off_in_morning
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sun.sun
-    to: "above_horizon"
+    platform: sun
+    event: sunrise
   action:
   - service: light.turn_off
     entity_id: light.outside
@@ -1215,8 +1140,6 @@
   trigger:
   - platform: time
     at: input_datetime.geyser_on_time
-#  - platform: template
-#    value_template: "{{ states('sensor.time') == states('input_datetime.geyser_on_time')[0:5] }}"
   condition:
   - condition: template
     value_template: "{{ (is_state('input_boolean.timer_geyser_workdays', 'on') and is_state('binary_sensor.workday_sensor', 'on')) or is_state('input_boolean.timer_geyser_workdays', 'off') }}"
@@ -1301,6 +1224,34 @@
       target: "{{ trigger.event.data.user_id }}"
       message: "Hi {{ trigger.event.data.from_first }} {{ trigger.event.data.from_last }} \nYour user id is {{ trigger.event.data.user_id }} \nTo get started type /help"
 #
+- alias: telegram_bot_keyboard_on
+  initial_state: true
+  trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: "/keyboard_on"
+  action:
+  - service: telegram_bot.send_message
+    data:
+      target: "{{ trigger.event.data.user_id }}"
+      message: "Keyboard turned on"
+      keyboard: ["/help, /keyboard_off"]
+#
+- alias: telegram_bot_keyboard_off
+  initial_state: true
+  trigger:
+    platform: event
+    event_type: telegram_command
+    event_data:
+      command: "/keyboard_off"
+  action:
+  - service: telegram_bot.send_message
+    data:
+      target: "{{ trigger.event.data.user_id }}"
+      message: "Keyboard turned off"
+      keyboard: []
+#
 - alias: telegram_bot_options
   initial_state: true
   trigger:
@@ -1331,12 +1282,18 @@
     event_data:
       data: '/garage_open'
   action:
-  - service: telegram_bot.delete_message
-    data_template:
+  - service: telegram_bot.edit_message
+    data:
       message_id: '{{ trigger.event.data.message.message_id }}'
       chat_id: '{{ trigger.event.data.user_id }}'
+      message: "Garage will auo open with driveway motion"
   - service: input_boolean.turn_on
     entity_id: input_boolean.garage_auto_opener
+  - delay: '00:01:00'
+  - service: telegram_bot.delete_message
+    data:
+      message_id: '{{ trigger.event.data.message.message_id }}'
+      chat_id: '{{ trigger.event.data.user_id }}'
 #
 - alias: telegram_bot_garage_close
   initial_state: true

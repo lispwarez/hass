@@ -232,7 +232,7 @@ automation.geyser_on_from_set_time:
   friendly_name: Geyser Timer Enabled
   icon: mdi:timer
 automation.pool_pump_on_for_conditions:
-  friendly_name: Pool Pump Timer Enabled
+  friendly_name: Pool Pump Auto Turn On
   icon: mdi:timer
 automation.axpert_change_to_solar:
   friendly_name: Enable auto change to Solar

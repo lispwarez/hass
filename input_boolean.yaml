@@ -28,9 +28,6 @@ garage_auto_opener:
   icon: mdi:garage-open
   initial: off
 #
-enable_tv_mode:
-  name: TV mode
-#
 bedtime_mode:
   name: "Bed Time"
   icon: mdi:bed
