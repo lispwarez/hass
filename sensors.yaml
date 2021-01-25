@@ -5,7 +5,6 @@
     - 'date'
 #
 - platform: uptime
-  unit_of_measurement: minutes
 #
 - platform: dnsip
 #
@@ -252,87 +251,89 @@
 #########################################
 - platform: mqtt
   name: node_up_rb01
-  expire_after: 90
   state_topic: "ha/s/up/rb1"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/rb1"
 #
 - platform: mqtt
   name: node_up_rb02
-  expire_after: 90
   state_topic: "ha/s/up/rb2"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/rb2"
 #
 - platform: mqtt
   name: node_up_rb03
-  expire_after: 90
   state_topic: "ha/s/up/rb3"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/rb3"
 ######################
 - platform: mqtt
   name: node_up_sw01
-  expire_after: 90
   state_topic: "ha/s/up/sw1"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/sw1"
 #
 - platform: mqtt
   name: node_up_sw02
-  expire_after: 90
   state_topic: "ha/s/up/sw2"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/sw2"
 #
 - platform: mqtt
   name: node_up_sw03
-  expire_after: 90
   state_topic: "ha/s/up/sw3"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/sw3"
 #
 - platform: mqtt
   name: node_up_sw04
-  expire_after: 90
   state_topic: "ha/s/up/sw4"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/sw4"
 ######################
-- platform: mqtt
-  name: node_up_dev01
-  expire_after: 90
-  state_topic: "ha/s/up/d01"
-  unit_of_measurement: "minutes"
+#- platform: mqtt
+#  name: node_up_dev01
+#  expire_after: 180
+#  state_topic: "ha/s/up/d01"
+#  unit_of_measurement: "minutes"
+#  availability_topic: "ha/s/lwt/d01"
 #
 - platform: mqtt
   name: node_up_dev02
-  expire_after: 90
   state_topic: "ha/s/up/d02"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/d02"
 #
 - platform: mqtt
   name: node_up_dev03
-  expire_after: 90
   state_topic: "ha/s/up/d03"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/d03"
 #
 - platform: mqtt
   name: node_up_dev04
-  expire_after: 90
   state_topic: "ha/s/up/d04"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/d04"
 #
 - platform: mqtt
   name: node_up_dev05
-  expire_after: 90
   state_topic: "ha/s/up/d05"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/d05"
 #
-- platform: mqtt
-  name: node_up_dev06
-  expire_after: 90
-  state_topic: "ha/s/up/d06"
-  unit_of_measurement: "minutes"
+#- platform: mqtt
+#  name: node_up_dev06
+#  expire_after: 180
+#  state_topic: "ha/s/up/d06"
+#  unit_of_measurement: "minutes"
+#  availability_topic: "ha/s/lwt/d06"
 #
 - platform: mqtt
   name: node_up_dev09
-  expire_after: 90
   state_topic: "ha/s/up/d09"
   unit_of_measurement: "minutes"
+  availability_topic: "ha/s/lwt/d09"
 #
 #########################################
 - platform: mqtt

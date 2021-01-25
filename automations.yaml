@@ -212,7 +212,7 @@
   trigger:
   - platform: template
     value_template: "{{ states('media_player.kodi') in ['off','unavailable'] and states('media_player.lounge_chromecast') in ['off','unavailable'] }}"
-    for: '00:05:00'
+    for: '00:10:00'
   action:
   - service: media_player.turn_off
     entity_id: media_player.lounge_samsung
@@ -422,7 +422,7 @@
   - condition: template
     value_template: >-
       {{ is_state('binary_sensor.axpert_has_solar', 'on') and is_state('sensor.axpert_output_source', 'Grid') and 
-      not ((state_attr('sun.sun', 'elevation') < 25 and state_attr('sun.sun', 'azimuth') > 33) and is_state_attr('sun.sun', 'rising', true)) and 
+      not ((state_attr('sun.sun', 'elevation') < 28 and state_attr('sun.sun', 'azimuth') > 33) and is_state_attr('sun.sun', 'rising', true)) and 
       not (state_attr('sun.sun', 'elevation') < 14 and is_state_attr('sun.sun', 'rising', false)) and
       states('sensor.axpert_battp') | int > 90 and states('sensor.axpert_outw') | int < 1800 and
       (now().timestamp() - as_timestamp(states.sensor.axpert_output_source.last_changed)) >= 900 }}
@@ -437,7 +437,7 @@
     to: "off"
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and not is_state('sensor.axpert_output_source', 'Grid') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and not is_state('sensor.axpert_output_source', 'Grid') and is_state('binary_sensor.running', 'on') }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
@@ -456,7 +456,7 @@
     for: '00:01:00'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and is_state('binary_sensor.running', 'on') }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
@@ -473,7 +473,7 @@
     value_template: "{{ is_state('binary_sensor.solar_below_cutoff', 'on') and states('sensor.axpert_outw') | int > states('sensor.axpert_pvw') | int }}"
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and is_state('binary_sensor.running', 'on') }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
@@ -492,7 +492,7 @@
     for: '00:01:20'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and is_state('binary_sensor.running', 'on') }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
@@ -510,7 +510,7 @@
     for: '00:01:30'
   condition:
   - condition: template
-    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and states('sensor.uptime') | int > 1 }}"
+    value_template: "{{ is_state('binary_sensor.power_warning', 'off') and is_state('binary_sensor.axpert_output_source_is_grid', 'off') and is_state('binary_sensor.running', 'on') }}"
   action:
   - service: script.axpert_change_source_grid
   - service: telegram_bot.send_message
@@ -572,9 +572,53 @@
     service: shell_command.power_reading
     data_template: 
       reading: "{{ states('sensor.prepaid_power_reading') }}"
+#
+- alias: loadshedding_on_battery
+  initial_state: true
+  trigger:
+    platform: template
+    value_template: "{{ is_state('sensor.axpert_source', 'Battery') }}"
+  action:
+    service: switch.turn_{{ 'off' if is_state('sensor.axpert_source', 'Battery') else 'on' }}
+    entity_id: switch.smart_plug_2
     
 #########################################################################################################
 ################### Pool Stuff ######################
+#
+- alias: temp_pool_on_elevation
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: switch.pool_pump
+    to: "on"
+    for: 00:01:00
+  condition:
+  - condition: template
+    value_template: >-
+        {% if state_attr('automation.pool_pump_on_for_conditions','last_triggered') is none %}False
+        {% else %}
+        {{ now().timestamp() - states.automation.pool_pump_on_for_conditions.attributes.last_triggered.timestamp() < 70 }}
+        {% endif %}
+  action:
+  - service: telegram_bot.send_message
+    data:
+      target: !secret telegram_userid_1
+      message: >-
+        Pool pump started. Elevation: {{ state_attr('sun.sun', 'elevation') }} Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+      disable_notification: true
+#
+- alias: log_pool_pump_ontime
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.poolpump_working_time
+  action:
+  - service: telegram_bot.send_message
+    data:
+      target: !secret telegram_userid_1
+      message: >-
+        Pool ontime changed. Elevation: {{ state_attr('sun.sun', 'elevation') }} Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+      disable_notification: true
 #
 - alias: pool_pump_not_on_today
   initial_state: true
@@ -599,6 +643,7 @@
   trigger:
   - platform: state
     entity_id: switch.pool_pump
+    from: "on"
     to: "off"
   action:
   - service: telegram_bot.send_message
@@ -884,9 +929,8 @@
     entity_id: input_boolean.garage_auto_opener
     to: "on"
   condition:
-  - condition: state
-    entity_id: input_boolean.garage_auto_opener
-    state: "on"
+  - condition: template
+    value_template: "{{ is_state('input_boolean.garage_auto_opener', 'on') and (as_timestamp(now()) - as_timestamp(states.binary_sensor.driveway_line_crossing.last_changed)) < 60 }}"
   action:
   - service: script.garage_open_after_disarm_alarm
 #
@@ -1090,8 +1134,8 @@
     entity_id: timer.bedroom_light
     to: "active"
   action:
-    service: light.turn_on
-    entity_id: light.bed_lamp
+    service: switch.turn_on
+    entity_id: switch.bedlamp
 #
 - alias: bedroom_lamp_off_from_timer
   initial_state: true
@@ -1100,8 +1144,8 @@
     entity_id: timer.bedroom_light
     to: "idle"
   action:
-    service: light.turn_off
-    entity_id: light.bed_lamp
+    service: switch.turn_off
+    entity_id: switch.bedlamp
 #
 - alias: bedroom_lamp_off_light_on
   initial_state: true

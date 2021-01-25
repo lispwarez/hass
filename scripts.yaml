@@ -45,8 +45,6 @@ wakeup_radio:
   sequence:
   - condition: template
     value_template: "{{ is_state('input_boolean.enable_wakeup_radio', 'on') }}"
-  - service: media_player.turn_on
-    entity_id: media_player.jbl_speaker
   - service: media_player.volume_set
     data:
       entity_id: media_player.kitchen_mini
@@ -54,7 +52,7 @@ wakeup_radio:
   - service: media_player.volume_set
     data:
       entity_id: media_player.bedroom_mini
-      volume_level: 0.20
+      volume_level: 0.25
   - service: media_player.volume_set
     data:
       entity_id: media_player.jbl_speaker

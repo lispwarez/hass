@@ -91,6 +91,7 @@
     - binary_sensor.solar_below_800
     - binary_sensor.solar_below_cutoff
     - binary_sensor.telegram_notifications
+    - binary_sensor.running
     - binary_sensor.updater
     - binary_sensor.workday_sensor
     - binary_sensor.zones_idle

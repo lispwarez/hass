@@ -1,42 +1,43 @@
-custom_header:
-  chevrons: false
-  compact_mode: true
 name: Where I lay my head is home
 views:
   - cards:
-      - entity: sensor.alarm_arm_mode
-        icon: 'mdi:shield-home'
-        style: >
-          ha-card .info { color: 
-
-          {% if is_state('sensor.alarm_arm_mode', 'Armed') %}
-          var(--accent-color)
-
-          {% elif is_state('sensor.alarm_arm_mode', 'Stay') %} #ffcd66
-
-          {% endif %} }
-        type: entity
-      - cards:
+      - type: vertical-stack
+        cards:
+          - entity: sensor.alarm_arm_mode
+            icon: 'mdi:shield-home'
+            style: >
+              {% if is_state('sensor.alarm_arm_mode', 'Armed') %} ha-card .info { color:var(--accent-color) } 
+              {% elif is_state('sensor.alarm_arm_mode','Stay') %} ha-card .info { color:#ffcd66} {% endif %}
+            type: entity
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.door_contact_garage_double
+                state: 'on'
+            card:
+              type: button
+              entity: script.garage_door_opener
+              show_name: false
+              show_icon: true
+              icon_height: 90px
+              tap_action:
+                action: toggle
           - card:
               type: shopping-list
             conditions:
               - entity: person.lispwarez
                 state: Checkers Hyper
             type: conditional
+      - cards:
           - columns: 4
             entities:
               - entity: binary_sensor.power_warning
                 name: Power Alert
                 style: |
-                  :host { {% if is_state('binary_sensor.power_warning', 'on') %}
-                  --paper-item-icon-color: var(--accent-color) {% endif %} }
+                  :host { {% if is_state('binary_sensor.power_warning', 'on') %} --paper-item-icon-color: var(--accent-color) {% endif %} }
               - entity: binary_sensor.doors_open_when_armed
                 name: Door Alert
                 style: >
-                  :host { {% if is_state('binary_sensor.doors_open_when_armed',
-                  'on') %}
-
-                  --paper-item-icon-color: var(--accent-color) {% endif %} }
+                  :host { {% if is_state('binary_sensor.doors_open_when_armed', 'on') %} --paper-item-icon-color: var(--accent-color) {% endif %} }
               - entity: binary_sensor.zones_idle
                 name: Zones
               - entity: binary_sensor.someone_home
@@ -50,9 +51,7 @@ views:
               - entity: input_boolean.bedtime_mode
                 name: Bedtime
                 style: >
-                  :host { {% if is_state('input_boolean.bedtime_mode', 'on') %}
-                  --paper-item-icon-color: var(--paper-item-icon-active-color)
-                  {% endif %} }
+                  :host { {% if is_state('input_boolean.bedtime_mode', 'on') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %} }
                 tap_action:
                   action: toggle
             show_name: true
@@ -189,18 +188,9 @@ views:
           - entity: sensor.alarm_arm_mode
             icon: 'mdi:shield-home'
             style: >
-              ha-card .info { color: 
-
-              {% if is_state('sensor.alarm_arm_mode', 'Armed') %}
-              var(--accent-color)
-
-              {% elif is_state('sensor.alarm_arm_mode', 'Stay') %} #ffcd66
-
-              {% endif %} }
-
-              ha-card {
-               border-bottom: 1px solid var(--primary-color);
-              }
+              {% if is_state('sensor.alarm_arm_mode', 'Armed') %} ha-card .info { color:var(--accent-color)} 
+              {% elif is_state('sensor.alarm_arm_mode', 'Stay') %} ha-card .info { color:#ffcd66} {% endif %} 
+              ha-card {border-bottom: 1px solid var(--primary-color);}
             type: entity
           - cards:
               - entity: script.paradox_status_arm
@@ -243,9 +233,7 @@ views:
                 icon_height: 40px
                 name: Auto Open
                 style: |
-                  :host {
-                    --paper-item-icon-color: {% if is_state('input_boolean.garage_auto_opener', 'on') %} var(--paper-item-icon-active-color) {% endif %}
-                  }
+                  :host { {% if is_state('input_boolean.garage_auto_opener', 'on') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %} }
                 tap_action:
                   action: toggle
                 type: entity-button
@@ -385,38 +373,38 @@ views:
           - entity: script.axpert_change_source_grid
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Grid') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_output_source', 'Grid') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - entity: script.axpert_change_source_solar
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'Solar') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_output_source', 'Solar') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - entity: script.axpert_change_source_sbu
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_output_source', 'SBU') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_output_source', 'SBU') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - type: divider
           - entity: script.axpert_charge_source_grid
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Grid First') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_charge_source', 'Grid First') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - entity: script.axpert_charge_source_solar
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar First') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_charge_source', 'Solar First') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - entity: script.axpert_charge_source_both
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar + Grid') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_charge_source', 'Solar + Grid') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - entity: script.axpert_charge_source_solar_only
             style: |
               :host {
-                --paper-item-icon-color: {% if is_state('sensor.axpert_charge_source', 'Solar Only') %} var(--paper-item-icon-active-color) {% endif %}
+                {% if is_state('sensor.axpert_charge_source', 'Solar Only') %} --paper-item-icon-color: var(--paper-item-icon-active-color) {% endif %}
               }
           - type: divider
           - entity: script.restart_axpert
@@ -563,17 +551,16 @@ views:
     title: Lights & Switches
   - cards:
       - entities:
-          - entity: input_boolean.enable_tv_mode
-            icon: 'mdi:television-classic'
           - entity: script.stream_radio
             icon: 'mdi:radio'
             name: Play KFM
-          - entity: script.send_ir_03
-            icon: 'mdi:remote'
-            name: Logitech Z5500 Power
+          - entity: script.wol_kodi
+            name: Kodi Wake on LAN
           - entity: script.send_ir_04
             icon: 'mdi:remote'
             name: Living Room TV Power
+          - entity: switch.smart_plug_1
+            name: Z5500 Power Switch
         show_header_toggle: false
         type: entities
       - entity: media_player.kodi

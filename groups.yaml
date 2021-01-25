@@ -17,3 +17,5 @@ nodes_uptime:
 tracked_things:
 - device_tracker.lisp_cell
 - device_tracker.lisp_gps
+- device_tracker.huawei_p20_lite_2dc96aaae
+- device_tracker.huawei_p30_lite_794a558ce

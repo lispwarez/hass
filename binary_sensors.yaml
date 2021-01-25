@@ -4,8 +4,10 @@
 #
 - platform: template
   sensors:
+    running:
+      value_template: "{{ as_timestamp(states.sensor.time.last_updated) - as_timestamp(states.sensor.uptime.state) > 60 }}"
     telegram_notifications:
-      value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and states('sensor.uptime') | int > 1 }}"
+      value_template: "{{ is_state('input_boolean.notification_telegram', 'on') and is_state('binary_sensor.running', 'on') }}"
     someone_home:
       value_template: "{{ is_state('group.tracked_things', 'home') or is_state('input_boolean.someone_home_forced', 'on') or is_state('input_boolean.bedtime_mode', 'on') }}"
       icon_template: "mdi:numeric-{{ states.person|selectattr('state','eq','home')|list|count}}-box-outline"
@@ -23,7 +25,7 @@
       delay_on: 50
     poolpump_working_time:
       value_template: >
-        {{ not ((state_attr('sun.sun', 'elevation') < 38 and state_attr('sun.sun', 'azimuth') > 15) and is_state_attr('sun.sun', 'rising', true)) and
+        {{ not ((state_attr('sun.sun', 'elevation') < 45 and state_attr('sun.sun', 'azimuth') > 15) and is_state_attr('sun.sun', 'rising', true)) and
         not ((state_attr('sun.sun', 'elevation') < 30 and state_attr('sun.sun', 'azimuth') < 320) and is_state_attr('sun.sun', 'rising', false)) }}
     zones_idle:
       value_template: >-

@@ -40,3 +40,6 @@ someone_home_forced:
 #
 alarm_mode_stay:
 #
+ytube_music_player_playcontinuous:
+  initial: true
+  name: "Countinuous playback"

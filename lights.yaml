@@ -305,15 +305,15 @@
   retain: True
 #
 ################################################################################
-- platform: mqtt
-  name: "Bed Lamp"
-  command_topic: "ha/c/r/d06-1"
-  state_topic: "ha/s/r/d06-1"
-  payload_on: "1"
-  payload_off: "0"
-  availability_topic: "ha/s/lwt/d06"
-  payload_available: "online"
-  payload_not_available: "offline"
-  retain: True
+#- platform: mqtt
+#  name: "Bed Lamp"
+#  command_topic: "ha/c/r/d06-1"
+#  state_topic: "ha/s/r/d06-1"
+#  payload_on: "1"
+#  payload_off: "0"
+#  availability_topic: "ha/s/lwt/d06"
+#  payload_available: "online"
+#  payload_not_available: "offline"
+#  retain: True
 #
 ################################################################################

@@ -107,7 +107,7 @@ notify: !include notify.yaml
 timer: !include timer.yaml
 
 camera: !include cameras.yaml
-#media_player: !include media_players.yaml
+media_player: !include media_players.yaml
 google_assistant: !include google_assistant.yaml
 
 recorder: !include recorder.yaml
